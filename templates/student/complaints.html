@@ -1,0 +1,3076 @@
+{% extends "base.html" %}
+
+{% block title %}
+AI Hostel Assistant | HostelNexus
+{% endblock %}
+
+{% block extra_css %}
+
+<style>
+
+    /* ============================================================
+       PAGE
+    ============================================================ */
+
+    .ai-page {
+        min-height: calc(100vh - 80px);
+        padding: 35px 0 50px;
+        background:
+            radial-gradient(
+                circle at 5% 5%,
+                rgba(91, 75, 255, 0.10),
+                transparent 28%
+            ),
+            radial-gradient(
+                circle at 95% 20%,
+                rgba(0, 191, 166, 0.08),
+                transparent 25%
+            ),
+            #f7f8fc;
+    }
+
+    .ai-container {
+        width: min(1400px, 94%);
+        margin: 0 auto;
+    }
+
+    /* ============================================================
+       PAGE HEADER
+    ============================================================ */
+
+    .ai-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+
+    .ai-heading {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .ai-heading-icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 17px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 27px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #5b4bff,
+                #4537d5
+            );
+
+        color: white;
+
+        box-shadow:
+            0 12px 28px rgba(
+                91,
+                75,
+                255,
+                0.22
+            );
+    }
+
+    .ai-heading h1 {
+        font-size: 28px;
+        margin: 0;
+        color: #172033;
+        letter-spacing: -0.7px;
+    }
+
+    .ai-heading p {
+        margin: 5px 0 0;
+        color: #727b8e;
+        font-size: 13px;
+    }
+
+    .new-chat-btn {
+        border: none;
+        border-radius: 11px;
+        padding: 12px 18px;
+
+        background: #ffffff;
+        color: #454d61;
+
+        border: 1px solid #e1e4ec;
+
+        cursor: pointer;
+
+        font-size: 13px;
+        font-weight: 700;
+
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease,
+            border-color 0.2s ease;
+    }
+
+    .new-chat-btn:hover {
+        transform: translateY(-2px);
+
+        border-color: #c9c4ff;
+
+        box-shadow:
+            0 8px 20px rgba(
+                30,
+                35,
+                70,
+                0.08
+            );
+    }
+
+    /* ============================================================
+       LAYOUT
+    ============================================================ */
+
+    .ai-layout {
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, 1fr)
+            330px;
+
+        gap: 22px;
+
+        align-items: start;
+    }
+
+    /* ============================================================
+       CHAT CARD
+    ============================================================ */
+
+    .chat-card {
+        background: #ffffff;
+
+        border: 1px solid #e5e7ef;
+
+        border-radius: 19px;
+
+        overflow: hidden;
+
+        box-shadow:
+            0 15px 45px rgba(
+                25,
+                35,
+                70,
+                0.07
+            );
+
+        min-height: 650px;
+
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-header {
+        padding: 17px 20px;
+
+        border-bottom: 1px solid #eceef3;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        gap: 15px;
+    }
+
+    .assistant-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .assistant-avatar {
+        width: 43px;
+        height: 43px;
+
+        border-radius: 13px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background:
+            linear-gradient(
+                135deg,
+                #5b4bff,
+                #7c6cff
+            );
+
+        color: white;
+
+        font-size: 21px;
+
+        box-shadow:
+            0 7px 17px rgba(
+                91,
+                75,
+                255,
+                0.20
+            );
+    }
+
+    .assistant-name {
+        font-size: 14px;
+        font-weight: 800;
+        color: #20283a;
+    }
+
+    .assistant-status {
+        margin-top: 3px;
+
+        font-size: 11px;
+
+        color: #08a878;
+
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .status-dot {
+        width: 7px;
+        height: 7px;
+
+        border-radius: 50%;
+
+        background: #08a878;
+    }
+
+    .chat-session {
+        font-size: 10px;
+        color: #9aa1b1;
+        font-family: monospace;
+    }
+
+    /* ============================================================
+       CHAT MESSAGES
+    ============================================================ */
+
+    .chat-messages {
+        flex: 1;
+
+        min-height: 420px;
+
+        max-height: 510px;
+
+        overflow-y: auto;
+
+        padding: 25px 22px;
+
+        background:
+            linear-gradient(
+                180deg,
+                #fbfcfe,
+                #f8f9fc
+            );
+    }
+
+    .message-row {
+        display: flex;
+
+        margin-bottom: 17px;
+    }
+
+    .message-row.student {
+        justify-content: flex-end;
+    }
+
+    .message-row.assistant {
+        justify-content: flex-start;
+    }
+
+    .message-bubble {
+        max-width: 78%;
+
+        padding: 12px 15px;
+
+        border-radius: 15px;
+
+        font-size: 13px;
+
+        line-height: 1.6;
+
+        word-break: break-word;
+    }
+
+    .message-row.assistant
+    .message-bubble {
+
+        background: #ffffff;
+
+        border: 1px solid #e5e8ef;
+
+        color: #41495b;
+
+        border-bottom-left-radius: 5px;
+
+        box-shadow:
+            0 5px 15px rgba(
+                25,
+                35,
+                70,
+                0.04
+            );
+    }
+
+    .message-row.student
+    .message-bubble {
+
+        background:
+            linear-gradient(
+                135deg,
+                #5b4bff,
+                #5141df
+            );
+
+        color: white;
+
+        border-bottom-right-radius: 5px;
+
+        box-shadow:
+            0 7px 18px rgba(
+                91,
+                75,
+                255,
+                0.16
+            );
+    }
+
+    .message-time {
+        font-size: 9px;
+
+        margin-top: 5px;
+
+        color: #9ba2b2;
+    }
+
+    .message-row.student
+    .message-time {
+        text-align: right;
+    }
+
+    /* ============================================================
+       WELCOME
+    ============================================================ */
+
+    .welcome-box {
+        text-align: center;
+
+        max-width: 520px;
+
+        margin: 40px auto 25px;
+    }
+
+    .welcome-icon {
+        width: 75px;
+        height: 75px;
+
+        margin: 0 auto 17px;
+
+        border-radius: 22px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background:
+            linear-gradient(
+                135deg,
+                #eeeaff,
+                #e2deff
+            );
+
+        font-size: 34px;
+    }
+
+    .welcome-box h2 {
+        margin: 0 0 8px;
+
+        color: #20283a;
+
+        font-size: 22px;
+    }
+
+    .welcome-box p {
+        margin: 0;
+
+        color: #7a8294;
+
+        font-size: 13px;
+
+        line-height: 1.7;
+    }
+
+    /* ============================================================
+       QUICK ACTIONS
+    ============================================================ */
+
+    .quick-actions {
+        display: flex;
+
+        flex-wrap: wrap;
+
+        gap: 8px;
+
+        justify-content: center;
+
+        margin-top: 20px;
+    }
+
+    .quick-action {
+        border: 1px solid #e1e4ed;
+
+        background: #ffffff;
+
+        color: #4c5568;
+
+        border-radius: 30px;
+
+        padding: 8px 12px;
+
+        font-size: 11px;
+
+        cursor: pointer;
+
+        transition:
+            background 0.2s ease,
+            border-color 0.2s ease,
+            transform 0.2s ease;
+    }
+
+    .quick-action:hover {
+        background: #f2f0ff;
+
+        border-color: #cec9ff;
+
+        transform: translateY(-1px);
+    }
+
+    /* ============================================================
+       COMPLAINT ANALYSIS
+    ============================================================ */
+
+    .analysis-card {
+        margin: 0 0 15px;
+
+        padding: 14px;
+
+        border-radius: 13px;
+
+        background: #f8f7ff;
+
+        border: 1px solid #dfdbff;
+    }
+
+    .analysis-title {
+        font-size: 11px;
+
+        color: #5b4bff;
+
+        font-weight: 800;
+
+        text-transform: uppercase;
+
+        letter-spacing: 0.5px;
+
+        margin-bottom: 10px;
+    }
+
+    .analysis-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(3, 1fr);
+
+        gap: 8px;
+    }
+
+    .analysis-item {
+        background: #ffffff;
+
+        border: 1px solid #e8e7f2;
+
+        border-radius: 9px;
+
+        padding: 9px;
+    }
+
+    .analysis-label {
+        font-size: 9px;
+
+        text-transform: uppercase;
+
+        color: #8a91a1;
+
+        margin-bottom: 4px;
+    }
+
+    .analysis-value {
+        font-size: 11px;
+
+        font-weight: 800;
+
+        color: #30384b;
+    }
+
+    /* ============================================================
+       CHAT INPUT
+    ============================================================ */
+
+    .chat-input-area {
+        padding: 14px 16px;
+
+        border-top: 1px solid #e9ebf0;
+
+        background: #ffffff;
+    }
+
+    .chat-input-wrapper {
+        display: flex;
+
+        align-items: flex-end;
+
+        gap: 9px;
+    }
+
+    .chat-input {
+        flex: 1;
+
+        min-height: 45px;
+
+        max-height: 110px;
+
+        resize: none;
+
+        border: 1px solid #dfe2ea;
+
+        border-radius: 13px;
+
+        padding: 12px 13px;
+
+        outline: none;
+
+        font-family: inherit;
+
+        font-size: 13px;
+
+        color: #242c3d;
+
+        transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+    .chat-input:focus {
+        border-color: #aaa3ff;
+
+        box-shadow:
+            0 0 0 3px rgba(
+                91,
+                75,
+                255,
+                0.08
+            );
+    }
+
+    .send-btn {
+        width: 45px;
+        height: 45px;
+
+        border: none;
+
+        border-radius: 13px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #5b4bff,
+                #4537d5
+            );
+
+        color: white;
+
+        cursor: pointer;
+
+        font-size: 17px;
+
+        flex-shrink: 0;
+
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+    .send-btn:hover {
+        transform: translateY(-2px);
+
+        box-shadow:
+            0 8px 18px rgba(
+                91,
+                75,
+                255,
+                0.20
+            );
+    }
+
+    .send-btn:disabled {
+        opacity: 0.55;
+
+        cursor: not-allowed;
+
+        transform: none;
+
+        box-shadow: none;
+    }
+
+    .input-note {
+        margin-top: 7px;
+
+        font-size: 10px;
+
+        color: #9aa1b0;
+
+        text-align: center;
+    }
+
+    /* ============================================================
+       SIDEBAR
+    ============================================================ */
+
+    .side-column {
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 17px;
+    }
+
+    .side-card {
+        background: #ffffff;
+
+        border: 1px solid #e5e7ef;
+
+        border-radius: 16px;
+
+        padding: 18px;
+
+        box-shadow:
+            0 10px 28px rgba(
+                25,
+                35,
+                70,
+                0.05
+            );
+    }
+
+    .side-card-title {
+        font-size: 13px;
+
+        font-weight: 800;
+
+        color: #242c3d;
+
+        margin-bottom: 14px;
+    }
+
+    /* ============================================================
+       STATISTICS
+    ============================================================ */
+
+    .stats-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
+        gap: 9px;
+    }
+
+    .stat-box {
+        border-radius: 11px;
+
+        padding: 12px;
+
+        background: #f8f9fc;
+
+        border: 1px solid #eaecf2;
+    }
+
+    .stat-number {
+        font-size: 21px;
+
+        font-weight: 800;
+
+        color: #252d40;
+    }
+
+    .stat-label {
+        font-size: 9px;
+
+        color: #858c9d;
+
+        margin-top: 3px;
+
+        text-transform: uppercase;
+
+        letter-spacing: 0.3px;
+    }
+
+    /* ============================================================
+       COMPLAINT LIST
+    ============================================================ */
+
+    .complaint-list {
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 9px;
+
+        max-height: 290px;
+
+        overflow-y: auto;
+    }
+
+    .complaint-item {
+        border: 1px solid #e8eaf0;
+
+        border-radius: 11px;
+
+        padding: 11px;
+
+        cursor: pointer;
+
+        transition:
+            transform 0.2s ease,
+            border-color 0.2s ease,
+            background 0.2s ease;
+    }
+
+    .complaint-item:hover {
+        transform: translateY(-1px);
+
+        border-color: #ccc7ff;
+
+        background: #faf9ff;
+    }
+
+    .complaint-item-top {
+        display: flex;
+
+        justify-content: space-between;
+
+        gap: 8px;
+    }
+
+    .complaint-subject {
+        font-size: 11px;
+
+        font-weight: 800;
+
+        color: #30384a;
+
+        line-height: 1.4;
+    }
+
+    .complaint-category {
+        margin-top: 5px;
+
+        font-size: 9px;
+
+        color: #858c9d;
+    }
+
+    .priority-badge,
+    .status-badge {
+        display: inline-flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        white-space: nowrap;
+
+        padding: 4px 7px;
+
+        border-radius: 20px;
+
+        font-size: 8px;
+
+        font-weight: 800;
+
+        text-transform: uppercase;
+    }
+
+    .priority-urgent {
+        background: #fff0f0;
+        color: #d63f3f;
+    }
+
+    .priority-high {
+        background: #fff5e9;
+        color: #c46a00;
+    }
+
+    .priority-medium {
+        background: #f2f0ff;
+        color: #5b4bff;
+    }
+
+    .priority-low {
+        background: #edf9f5;
+        color: #008e68;
+    }
+
+    .status-open {
+        background: #eef3ff;
+        color: #4968d8;
+    }
+
+    .status-in_progress {
+        background: #fff5e9;
+        color: #bd6800;
+    }
+
+    .status-resolved,
+    .status-closed {
+        background: #eaf9f3;
+        color: #008a63;
+    }
+
+    .empty-complaints {
+        text-align: center;
+
+        padding: 20px 5px;
+
+        color: #8a91a0;
+
+        font-size: 11px;
+    }
+
+    /* ============================================================
+       CATEGORY PANEL
+    ============================================================ */
+
+    .category-list {
+        display: grid;
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
+        gap: 7px;
+    }
+
+    .category-btn {
+        border: 1px solid #e5e7ef;
+
+        background: #fafbfc;
+
+        color: #5b6375;
+
+        border-radius: 8px;
+
+        padding: 8px 6px;
+
+        font-size: 9px;
+
+        cursor: pointer;
+
+        transition:
+            background 0.2s ease,
+            border-color 0.2s ease,
+            color 0.2s ease;
+    }
+
+    .category-btn:hover {
+        background: #f1efff;
+
+        border-color: #cbc6ff;
+
+        color: #5b4bff;
+    }
+
+    /* ============================================================
+       COMPLAINT MODAL
+    ============================================================ */
+
+    .complaint-modal-overlay {
+        position: fixed;
+
+        inset: 0;
+
+        background: rgba(
+            17,
+            24,
+            39,
+            0.52
+        );
+
+        backdrop-filter: blur(5px);
+
+        display: none;
+
+        align-items: center;
+
+        justify-content: center;
+
+        padding: 20px;
+
+        z-index: 9999;
+    }
+
+    .complaint-modal-overlay.active {
+        display: flex;
+    }
+
+    .complaint-modal {
+        width: min(
+            560px,
+            100%
+        );
+
+        max-height: 90vh;
+
+        overflow-y: auto;
+
+        background: white;
+
+        border-radius: 18px;
+
+        box-shadow:
+            0 30px 80px rgba(
+                0,
+                0,
+                0,
+                0.20
+            );
+
+        animation:
+            modalIn 0.25s ease;
+    }
+
+    @keyframes modalIn {
+
+        from {
+            opacity: 0;
+            transform: translateY(15px) scale(0.98);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+    }
+
+    .modal-header {
+        padding: 19px 21px;
+
+        border-bottom: 1px solid #e9ebf0;
+
+        display: flex;
+
+        justify-content: space-between;
+
+        align-items: center;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+
+        font-size: 16px;
+
+        color: #252d40;
+    }
+
+    .modal-close {
+        width: 30px;
+        height: 30px;
+
+        border: none;
+
+        background: #f2f3f7;
+
+        border-radius: 9px;
+
+        cursor: pointer;
+
+        color: #646c7d;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-label {
+        display: block;
+
+        font-size: 11px;
+
+        font-weight: 700;
+
+        color: #626b7d;
+
+        margin-bottom: 7px;
+    }
+
+    .form-control {
+        width: 100%;
+
+        border: 1px solid #dfe2e9;
+
+        border-radius: 10px;
+
+        padding: 11px 12px;
+
+        font-family: inherit;
+
+        font-size: 13px;
+
+        outline: none;
+
+        transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+    .form-control:focus {
+        border-color: #aaa3ff;
+
+        box-shadow:
+            0 0 0 3px rgba(
+                91,
+                75,
+                255,
+                0.08
+            );
+    }
+
+    textarea.form-control {
+        min-height: 130px;
+
+        resize: vertical;
+    }
+
+    .modal-footer {
+        padding: 15px 20px;
+
+        border-top: 1px solid #e9ebf0;
+
+        display: flex;
+
+        justify-content: flex-end;
+
+        gap: 9px;
+    }
+
+    .modal-btn {
+        border: none;
+
+        border-radius: 9px;
+
+        padding: 10px 16px;
+
+        font-size: 12px;
+
+        font-weight: 700;
+
+        cursor: pointer;
+    }
+
+    .modal-btn.secondary {
+        background: #f1f2f6;
+
+        color: #5c6475;
+    }
+
+    .modal-btn.primary {
+        background:
+            linear-gradient(
+                135deg,
+                #5b4bff,
+                #4537d5
+            );
+
+        color: white;
+    }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+
+    @media (max-width: 1050px) {
+
+        .ai-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .side-column {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+        }
+
+    }
+
+    @media (max-width: 700px) {
+
+        .ai-page {
+            padding-top: 22px;
+        }
+
+        .ai-page-header {
+            align-items: flex-start;
+
+            flex-direction: column;
+        }
+
+        .ai-heading h1 {
+            font-size: 23px;
+        }
+
+        .chat-card {
+            min-height: 600px;
+        }
+
+        .chat-messages {
+            min-height: 390px;
+        }
+
+        .message-bubble {
+            max-width: 88%;
+        }
+
+        .side-column {
+            display: flex;
+        }
+
+        .analysis-grid {
+            grid-template-columns: 1fr;
+        }
+
+    }
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="ai-page">
+
+    <div class="ai-container">
+
+
+        <!-- =====================================================
+             PAGE HEADER
+        ====================================================== -->
+
+        <div class="ai-page-header">
+
+            <div class="ai-heading">
+
+                <div class="ai-heading-icon">
+                    🤖
+                </div>
+
+                <div>
+
+                    <h1>
+                        AI Hostel Assistant
+                    </h1>
+
+                    <p>
+                        Ask questions or report hostel issues
+                        using natural language.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="new-chat-btn"
+                onclick="startNewChat()"
+            >
+                ＋ New Conversation
+            </button>
+
+        </div>
+
+
+        <!-- =====================================================
+             MAIN LAYOUT
+        ====================================================== -->
+
+        <div class="ai-layout">
+
+
+            <!-- =================================================
+                 CHAT
+            ================================================== -->
+
+            <div class="chat-card">
+
+
+                <div class="chat-header">
+
+                    <div class="assistant-info">
+
+                        <div class="assistant-avatar">
+                            🤖
+                        </div>
+
+                        <div>
+
+                            <div class="assistant-name">
+                                HostelNexus AI
+                            </div>
+
+                            <div class="assistant-status">
+
+                                <span class="status-dot"></span>
+
+                                AI Assistant Online
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="chat-session">
+
+                        Session:
+                        {{ ai_session_id[:8] }}
+
+                    </div>
+
+                </div>
+
+
+                <!-- CHAT MESSAGES -->
+
+                <div
+                    class="chat-messages"
+                    id="chatMessages"
+                >
+
+                    {% if conversation %}
+
+                        {% for message in conversation %}
+
+                            <div
+                                class="message-row
+                                {% if message.sender == 'student' %}
+                                    student
+                                {% else %}
+                                    assistant
+                                {% endif %}"
+                            >
+
+                                <div>
+
+                                    <div class="message-bubble">
+
+                                        {{ message.message }}
+
+                                    </div>
+
+                                    <div class="message-time">
+
+                                        {{ message.created_at }}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <div
+                            class="welcome-box"
+                            id="welcomeBox"
+                        >
+
+                            <div class="welcome-icon">
+                                🤖
+                            </div>
+
+                            <h2>
+                                Hello {{ student.first_name }}! 👋
+                            </h2>
+
+                            <p>
+                                I'm your HostelNexus AI Assistant.
+                                Ask me about your hostel or describe
+                                any problem you are facing.
+                            </p>
+
+
+                            <div class="quick-actions">
+
+                                <button
+                                    class="quick-action"
+                                    onclick="quickMessage(
+                                        'I want to report a complaint'
+                                    )"
+                                >
+                                    📝 Report Complaint
+                                </button>
+
+                                <button
+                                    class="quick-action"
+                                    onclick="quickMessage(
+                                        'How can I check my fees?'
+                                    )"
+                                >
+                                    💰 My Fees
+                                </button>
+
+                                <button
+                                    class="quick-action"
+                                    onclick="quickMessage(
+                                        'How can I see my room details?'
+                                    )"
+                                >
+                                    🛏 My Room
+                                </button>
+
+                                <button
+                                    class="quick-action"
+                                    onclick="quickMessage(
+                                        'Where can I check the mess menu?'
+                                    )"
+                                >
+                                    🍽 Mess Menu
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- =================================================
+                     CHAT INPUT
+                ================================================== -->
+
+                <div class="chat-input-area">
+
+                    <form
+                        id="chatForm"
+                        onsubmit="sendMessage(event)"
+                    >
+
+                        <div class="chat-input-wrapper">
+
+                            <textarea
+                                id="chatInput"
+                                class="chat-input"
+                                placeholder="Type your question or describe a hostel issue..."
+                                maxlength="2000"
+                                rows="1"
+                            ></textarea>
+
+
+                            <button
+                                type="submit"
+                                class="send-btn"
+                                id="sendButton"
+                                title="Send message"
+                            >
+                                ➤
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                    <div class="input-note">
+                        AI responses are based on available HostelNexus information.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 SIDE COLUMN
+            ================================================== -->
+
+            <div class="side-column">
+
+
+                <!-- STATISTICS -->
+
+                <div class="side-card">
+
+                    <div class="side-card-title">
+                        My Complaint Overview
+                    </div>
+
+                    <div class="stats-grid">
+
+                        <div class="stat-box">
+
+                            <div class="stat-number">
+                                {{ statistics.total }}
+                            </div>
+
+                            <div class="stat-label">
+                                Total
+                            </div>
+
+                        </div>
+
+
+                        <div class="stat-box">
+
+                            <div class="stat-number">
+                                {{ statistics.open }}
+                            </div>
+
+                            <div class="stat-label">
+                                Open
+                            </div>
+
+                        </div>
+
+
+                        <div class="stat-box">
+
+                            <div class="stat-number">
+                                {{ statistics.in_progress }}
+                            </div>
+
+                            <div class="stat-label">
+                                In Progress
+                            </div>
+
+                        </div>
+
+
+                        <div class="stat-box">
+
+                            <div class="stat-number">
+                                {{ statistics.resolved }}
+                            </div>
+
+                            <div class="stat-label">
+                                Resolved
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- COMPLAINT HISTORY -->
+
+                <div class="side-card">
+
+                    <div class="side-card-title">
+                        Recent Complaints
+                    </div>
+
+                    <div
+                        class="complaint-list"
+                        id="complaintList"
+                    >
+
+                        {% if complaints %}
+
+                            {% for complaint in complaints %}
+
+                                <div
+                                    class="complaint-item"
+                                    onclick="viewComplaint(
+                                        {{ complaint.id }}
+                                    )"
+                                >
+
+                                    <div class="complaint-item-top">
+
+                                        <div>
+
+                                            <div class="complaint-subject">
+
+                                                {{ complaint.subject }}
+
+                                            </div>
+
+                                            <div class="complaint-category">
+
+                                                {{ complaint.category }}
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <span
+                                            class="priority-badge
+                                            priority-{{
+                                                complaint.priority
+                                            }}"
+                                        >
+                                            {{ complaint.priority }}
+                                        </span>
+
+                                    </div>
+
+
+                                    <div
+                                        style="
+                                            margin-top: 8px;
+                                            display: flex;
+                                            justify-content: space-between;
+                                            align-items: center;
+                                        "
+                                    >
+
+                                        <span
+                                            class="status-badge
+                                            status-{{
+                                                complaint.status
+                                            }}"
+                                        >
+                                            {{ complaint.status
+                                                |replace(
+                                                    '_',
+                                                    ' '
+                                                )
+                                            }}
+                                        </span>
+
+                                        <span
+                                            style="
+                                                font-size: 8px;
+                                                color: #9aa1b0;
+                                            "
+                                        >
+                                            #{{ complaint.id }}
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            {% endfor %}
+
+                        {% else %}
+
+                            <div class="empty-complaints">
+                                No complaints submitted yet.
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <!-- QUICK COMPLAINT CATEGORIES -->
+
+                <div class="side-card">
+
+                    <div class="side-card-title">
+                        Quick Complaint
+                    </div>
+
+                    <div class="category-list">
+
+                        {% for category in categories %}
+
+                            <button
+                                type="button"
+                                class="category-btn"
+                                onclick="openComplaintModal(
+                                    '{{ category|replace(
+                                        "'",
+                                        "\\'"
+                                    ) }}'
+                                )"
+                            >
+                                {{ category }}
+                            </button>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     COMPLAINT SUBMISSION MODAL
+============================================================== -->
+
+<div
+    class="complaint-modal-overlay"
+    id="complaintModal"
+>
+
+    <div class="complaint-modal">
+
+        <div class="modal-header">
+
+            <h3>
+                📝 Submit Hostel Complaint
+            </h3>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeComplaintModal()"
+            >
+                ✕
+            </button>
+
+        </div>
+
+
+        <form
+            id="complaintForm"
+            onsubmit="submitComplaint(event)"
+        >
+
+            <div class="modal-body">
+
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Complaint Category
+                    </label>
+
+                    <select
+                        id="complaintCategory"
+                        class="form-control"
+                        disabled
+                    >
+
+                        {% for category in categories %}
+
+                            <option value="{{ category }}">
+                                {{ category }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                    <input
+                        type="hidden"
+                        id="selectedCategory"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label class="form-label">
+                        Describe Your Issue
+                    </label>
+
+                    <textarea
+                        id="complaintDescription"
+                        class="form-control"
+                        placeholder="Describe the issue in your own words. The AI will analyze it automatically..."
+                        maxlength="5000"
+                        required
+                    ></textarea>
+
+                </div>
+
+
+                <div
+                    id="analysisPreview"
+                    style="display:none;"
+                ></div>
+
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="modal-btn secondary"
+                    onclick="closeComplaintModal()"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="modal-btn primary"
+                    id="complaintSubmitButton"
+                >
+                    🤖 Analyze & Submit
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     COMPLAINT DETAILS MODAL
+============================================================== -->
+
+<div
+    class="complaint-modal-overlay"
+    id="detailsModal"
+>
+
+    <div class="complaint-modal">
+
+        <div class="modal-header">
+
+            <h3>
+                Complaint Details
+            </h3>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeDetailsModal()"
+            >
+                ✕
+            </button>
+
+        </div>
+
+
+        <div
+            class="modal-body"
+            id="complaintDetailsContent"
+        >
+
+            Loading...
+
+        </div>
+
+    </div>
+
+</div>
+
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+    /* ============================================================
+       CONFIGURATION
+    ============================================================ */
+
+    const csrfToken =
+        "{{ csrf_token }}";
+
+    const chatUrl =
+        "{{ url_for(
+            'student_complaints.chat'
+        ) }}";
+
+    const newChatUrl =
+        "{{ url_for(
+            'student_complaints.new_chat'
+        ) }}";
+
+    const submitComplaintUrl =
+        "{{ url_for(
+            'student_complaints.submit_complaint'
+        ) }}";
+
+    const analyzeUrl =
+        "{{ url_for(
+            'student_complaints.analyze'
+        ) }}";
+
+
+    /* ============================================================
+       ELEMENTS
+    ============================================================ */
+
+    const chatMessages =
+        document.getElementById(
+            "chatMessages"
+        );
+
+    const chatInput =
+        document.getElementById(
+            "chatInput"
+        );
+
+    const sendButton =
+        document.getElementById(
+            "sendButton"
+        );
+
+
+    /* ============================================================
+       SCROLL CHAT TO BOTTOM
+    ============================================================ */
+
+    function scrollChatToBottom() {
+
+        if (!chatMessages) {
+            return;
+        }
+
+        chatMessages.scrollTop =
+            chatMessages.scrollHeight;
+    }
+
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            scrollChatToBottom();
+
+        }
+    );
+
+
+    /* ============================================================
+       ESCAPE HTML
+    ============================================================ */
+
+    function escapeHtml(value) {
+
+        const div =
+            document.createElement(
+                "div"
+            );
+
+        div.textContent =
+            value ?? "";
+
+        return div.innerHTML;
+    }
+
+
+    /* ============================================================
+       FORMAT DATE
+    ============================================================ */
+
+    function formatDate(value) {
+
+        if (!value) {
+            return "";
+        }
+
+        return String(value)
+            .replace("T", " ")
+            .substring(0, 19);
+    }
+
+
+    /* ============================================================
+       ADD MESSAGE
+    ============================================================ */
+
+    function addMessage(
+        sender,
+        message
+    ) {
+
+        const row =
+            document.createElement(
+                "div"
+            );
+
+        row.className =
+            "message-row " +
+            (
+                sender === "student"
+                    ? "student"
+                    : "assistant"
+            );
+
+        const wrapper =
+            document.createElement(
+                "div"
+            );
+
+        const bubble =
+            document.createElement(
+                "div"
+            );
+
+        bubble.className =
+            "message-bubble";
+
+        bubble.innerHTML =
+            escapeHtml(message)
+                .replace(
+                    /\n/g,
+                    "<br>"
+                );
+
+        const time =
+            document.createElement(
+                "div"
+            );
+
+        time.className =
+            "message-time";
+
+        const now =
+            new Date();
+
+        time.textContent =
+            now.toLocaleTimeString(
+                [],
+                {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }
+            );
+
+        wrapper.appendChild(
+            bubble
+        );
+
+        wrapper.appendChild(
+            time
+        );
+
+        row.appendChild(
+            wrapper
+        );
+
+        chatMessages.appendChild(
+            row
+        );
+
+        scrollChatToBottom();
+    }
+
+
+    /* ============================================================
+       TYPING INDICATOR
+    ============================================================ */
+
+    function showTyping() {
+
+        const row =
+            document.createElement(
+                "div"
+            );
+
+        row.id =
+            "typingIndicator";
+
+        row.className =
+            "message-row assistant";
+
+        row.innerHTML = `
+            <div>
+                <div
+                    class="message-bubble"
+                    style="
+                        color:#8a91a1;
+                    "
+                >
+                    🤖 AI is thinking...
+                </div>
+            </div>
+        `;
+
+        chatMessages.appendChild(
+            row
+        );
+
+        scrollChatToBottom();
+    }
+
+
+    function hideTyping() {
+
+        const typing =
+            document.getElementById(
+                "typingIndicator"
+            );
+
+        if (typing) {
+            typing.remove();
+        }
+    }
+
+
+    /* ============================================================
+       SEND CHAT MESSAGE
+    ============================================================ */
+
+    async function sendMessage(event) {
+
+        event.preventDefault();
+
+        const message =
+            chatInput.value.trim();
+
+        if (!message) {
+            return;
+        }
+
+        addMessage(
+            "student",
+            message
+        );
+
+        chatInput.value = "";
+
+        chatInput.style.height =
+            "45px";
+
+        sendButton.disabled = true;
+
+        showTyping();
+
+        try {
+
+            const formData =
+                new FormData();
+
+            formData.append(
+                "csrf_token",
+                csrfToken
+            );
+
+            formData.append(
+                "message",
+                message
+            );
+
+            const response =
+                await fetch(
+                    chatUrl,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "X-CSRF-Token":
+                                csrfToken
+                        },
+
+                        body: formData
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            hideTyping();
+
+            if (!data.success) {
+
+                if (
+                    typeof showToast ===
+                    "function"
+                ) {
+
+                    showToast(
+                        data.message ||
+                        "Unable to send message.",
+                        "error"
+                    );
+
+                }
+
+                return;
+            }
+
+            addMessage(
+                "assistant",
+                data.message
+            );
+
+
+            /* ----------------------------------------------
+               SHOW AI ANALYSIS
+            ---------------------------------------------- */
+
+            if (
+                data.response_type ===
+                "complaint_analysis"
+                &&
+                data.analysis
+            ) {
+
+                showAnalysisInChat(
+                    data.analysis
+                );
+
+            }
+
+        }
+        catch (error) {
+
+            hideTyping();
+
+            console.error(
+                error
+            );
+
+            if (
+                typeof showToast ===
+                "function"
+            ) {
+
+                showToast(
+                    "Unable to connect to AI Assistant.",
+                    "error"
+                );
+
+            }
+
+        }
+        finally {
+
+            sendButton.disabled = false;
+
+            chatInput.focus();
+
+        }
+    }
+
+
+    /* ============================================================
+       SHOW ANALYSIS
+    ============================================================ */
+
+    function showAnalysisInChat(
+        analysis
+    ) {
+
+        const card =
+            document.createElement(
+                "div"
+            );
+
+        card.className =
+            "analysis-card";
+
+        card.innerHTML = `
+
+            <div class="analysis-title">
+                🤖 AI Complaint Analysis
+            </div>
+
+            <div class="analysis-grid">
+
+                <div class="analysis-item">
+
+                    <div class="analysis-label">
+                        Category
+                    </div>
+
+                    <div class="analysis-value">
+                        ${escapeHtml(
+                            analysis.category
+                        )}
+                    </div>
+
+                </div>
+
+                <div class="analysis-item">
+
+                    <div class="analysis-label">
+                        Subject
+                    </div>
+
+                    <div class="analysis-value">
+                        ${escapeHtml(
+                            analysis.subject
+                        )}
+                    </div>
+
+                </div>
+
+                <div class="analysis-item">
+
+                    <div class="analysis-label">
+                        Priority
+                    </div>
+
+                    <div class="analysis-value">
+                        ${escapeHtml(
+                            analysis.priority
+                        ).toUpperCase()}
+                    </div>
+
+                </div>
+
+            </div>
+        `;
+
+        chatMessages.appendChild(
+            card
+        );
+
+        scrollChatToBottom();
+    }
+
+
+    /* ============================================================
+       QUICK MESSAGE
+    ============================================================ */
+
+    function quickMessage(
+        message
+    ) {
+
+        chatInput.value =
+            message;
+
+        chatInput.focus();
+
+        chatInput.dispatchEvent(
+            new Event(
+                "input"
+            )
+        );
+
+    }
+
+
+    /* ============================================================
+       NEW CHAT
+    ============================================================ */
+
+    async function startNewChat() {
+
+        const confirmed =
+            confirm(
+                "Start a new AI conversation?"
+            );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+
+            const formData =
+                new FormData();
+
+            formData.append(
+                "csrf_token",
+                csrfToken
+            );
+
+            const response =
+                await fetch(
+                    newChatUrl,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "X-CSRF-Token":
+                                csrfToken
+                        },
+
+                        body: formData
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!data.success) {
+
+                if (
+                    typeof showToast ===
+                    "function"
+                ) {
+
+                    showToast(
+                        data.message,
+                        "error"
+                    );
+
+                }
+
+                return;
+            }
+
+            window.location.reload();
+
+        }
+        catch (error) {
+
+            console.error(
+                error
+            );
+
+            if (
+                typeof showToast ===
+                "function"
+            ) {
+
+                showToast(
+                    "Unable to start a new conversation.",
+                    "error"
+                );
+
+            }
+
+        }
+    }
+
+
+    /* ============================================================
+       OPEN COMPLAINT MODAL
+    ============================================================ */
+
+    function openComplaintModal(
+        category
+    ) {
+
+        const modal =
+            document.getElementById(
+                "complaintModal"
+            );
+
+        const categorySelect =
+            document.getElementById(
+                "complaintCategory"
+            );
+
+        const selectedCategory =
+            document.getElementById(
+                "selectedCategory"
+            );
+
+        const description =
+            document.getElementById(
+                "complaintDescription"
+            );
+
+        categorySelect.value =
+            category;
+
+        selectedCategory.value =
+            category;
+
+        description.value = "";
+
+        document.getElementById(
+            "analysisPreview"
+        ).style.display =
+            "none";
+
+        modal.classList.add(
+            "active"
+        );
+
+        setTimeout(
+            function () {
+                description.focus();
+            },
+            100
+        );
+
+    }
+
+
+    function closeComplaintModal() {
+
+        document.getElementById(
+            "complaintModal"
+        ).classList.remove(
+            "active"
+        );
+
+    }
+
+
+    /* ============================================================
+       ANALYZE COMPLAINT BEFORE SUBMISSION
+    ============================================================ */
+
+    async function analyzeComplaint(
+        description
+    ) {
+
+        const formData =
+            new FormData();
+
+        formData.append(
+            "csrf_token",
+            csrfToken
+        );
+
+        formData.append(
+            "description",
+            description
+        );
+
+        const response =
+            await fetch(
+                analyzeUrl,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "X-CSRF-Token":
+                            csrfToken
+                    },
+
+                    body: formData
+                }
+            );
+
+        return await response.json();
+
+    }
+
+
+    /* ============================================================
+       SUBMIT COMPLAINT
+    ============================================================ */
+
+    async function submitComplaint(
+        event
+    ) {
+
+        event.preventDefault();
+
+        const description =
+            document.getElementById(
+                "complaintDescription"
+            ).value.trim();
+
+        if (!description) {
+
+            if (
+                typeof showToast ===
+                "function"
+            ) {
+
+                showToast(
+                    "Please describe your complaint.",
+                    "error"
+                );
+
+            }
+
+            return;
+        }
+
+        const button =
+            document.getElementById(
+                "complaintSubmitButton"
+            );
+
+        button.disabled = true;
+
+        button.textContent =
+            "🤖 Analyzing...";
+
+        try {
+
+            /* ----------------------------------------------
+               FIRST: AI ANALYSIS
+            ---------------------------------------------- */
+
+            const analysisResult =
+                await analyzeComplaint(
+                    description
+                );
+
+            if (
+                !analysisResult.success
+            ) {
+
+                throw new Error(
+                    analysisResult.message
+                    ||
+                    "Unable to analyze complaint."
+                );
+
+            }
+
+
+            /* ----------------------------------------------
+               SHOW ANALYSIS
+            ---------------------------------------------- */
+
+            const analysis =
+                analysisResult.analysis;
+
+            const preview =
+                document.getElementById(
+                    "analysisPreview"
+                );
+
+            preview.style.display =
+                "block";
+
+            preview.innerHTML = `
+
+                <div class="analysis-card">
+
+                    <div class="analysis-title">
+                        🤖 AI Analysis Result
+                    </div>
+
+                    <div class="analysis-grid">
+
+                        <div class="analysis-item">
+
+                            <div class="analysis-label">
+                                Category
+                            </div>
+
+                            <div class="analysis-value">
+                                ${escapeHtml(
+                                    analysis.category
+                                )}
+                            </div>
+
+                        </div>
+
+                        <div class="analysis-item">
+
+                            <div class="analysis-label">
+                                Subject
+                            </div>
+
+                            <div class="analysis-value">
+                                ${escapeHtml(
+                                    analysis.subject
+                                )}
+                            </div>
+
+                        </div>
+
+                        <div class="analysis-item">
+
+                            <div class="analysis-label">
+                                Priority
+                            </div>
+
+                            <div class="analysis-value">
+                                ${escapeHtml(
+                                    analysis.priority
+                                ).toUpperCase()}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            `;
+
+
+            /* ----------------------------------------------
+               ACTUAL SUBMISSION
+            ---------------------------------------------- */
+
+            button.textContent =
+                "Submitting...";
+
+            const formData =
+                new FormData();
+
+            formData.append(
+                "csrf_token",
+                csrfToken
+            );
+
+            formData.append(
+                "description",
+                description
+            );
+
+            const response =
+                await fetch(
+                    submitComplaintUrl,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "X-CSRF-Token":
+                                csrfToken
+                        },
+
+                        body: formData
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!data.success) {
+
+                throw new Error(
+                    data.message ||
+                    "Unable to submit complaint."
+                );
+
+            }
+
+
+            /* ----------------------------------------------
+               SUCCESS
+            ---------------------------------------------- */
+
+            closeComplaintModal();
+
+            if (
+                typeof showToast ===
+                "function"
+            ) {
+
+                showToast(
+                    "Complaint submitted successfully.",
+                    "success"
+                );
+
+            }
+
+            setTimeout(
+                function () {
+                    window.location.reload();
+                },
+                700
+            );
+
+        }
+        catch (error) {
+
+            console.error(
+                error
+            );
+
+            if (
+                typeof showToast ===
+                "function"
+            ) {
+
+                showToast(
+                    error.message ||
+                    "Unable to submit complaint.",
+                    "error"
+                );
+
+            }
+
+        }
+        finally {
+
+            button.disabled = false;
+
+            button.textContent =
+                "🤖 Analyze & Submit";
+
+        }
+
+    }
+
+
+    /* ============================================================
+       VIEW COMPLAINT
+    ============================================================ */
+
+    async function viewComplaint(
+        complaintId
+    ) {
+
+        const modal =
+            document.getElementById(
+                "detailsModal"
+            );
+
+        const content =
+            document.getElementById(
+                "complaintDetailsContent"
+            );
+
+        modal.classList.add(
+            "active"
+        );
+
+        content.innerHTML =
+            "Loading complaint details...";
+
+        try {
+
+            const response =
+                await fetch(
+                    `/student/complaints/${complaintId}`
+                );
+
+            const data =
+                await response.json();
+
+            if (!data.success) {
+
+                content.innerHTML =
+                    `<div style="
+                        color:#d33;
+                        font-size:13px;
+                    ">
+                        ${escapeHtml(
+                            data.message
+                        )}
+                    </div>`;
+
+                return;
+            }
+
+            const complaint =
+                data.complaint;
+
+            const messages =
+                data.messages || [];
+
+
+            let messagesHtml = "";
+
+            messages.forEach(
+                function (message) {
+
+                    const sender =
+                        message.sender_type;
+
+                    messagesHtml += `
+
+                        <div style="
+                            margin-bottom:12px;
+                            padding:11px;
+                            border-radius:10px;
+                            background:
+                                ${
+                                    sender === "student"
+                                    ? "#f4f2ff"
+                                    : "#f5f7fa"
+                                };
+                            border:1px solid #e6e8ee;
+                        ">
+
+                            <div style="
+                                font-size:9px;
+                                text-transform:uppercase;
+                                font-weight:800;
+                                color:#737b8d;
+                                margin-bottom:5px;
+                            ">
+                                ${escapeHtml(
+                                    sender
+                                )}
+                            </div>
+
+                            <div style="
+                                font-size:12px;
+                                color:#40485a;
+                                line-height:1.6;
+                            ">
+                                ${escapeHtml(
+                                    message.message
+                                )}
+                            </div>
+
+                        </div>
+
+                    `;
+
+                }
+            );
+
+
+            content.innerHTML = `
+
+                <div>
+
+                    <div style="
+                        display:flex;
+                        justify-content:space-between;
+                        gap:10px;
+                        align-items:flex-start;
+                        margin-bottom:15px;
+                    ">
+
+                        <div>
+
+                            <div style="
+                                font-size:17px;
+                                font-weight:800;
+                                color:#252d40;
+                            ">
+                                ${escapeHtml(
+                                    complaint.subject
+                                )}
+                            </div>
+
+                            <div style="
+                                margin-top:5px;
+                                font-size:11px;
+                                color:#858c9d;
+                            ">
+                                Complaint #${complaint.id}
+                            </div>
+
+                        </div>
+
+                        <span
+                            class="status-badge
+                            status-${escapeHtml(
+                                complaint.status
+                            )}"
+                        >
+                            ${escapeHtml(
+                                complaint.status
+                            ).replace(
+                                "_",
+                                " "
+                            )}
+                        </span>
+
+                    </div>
+
+
+                    <div style="
+                        display:grid;
+                        grid-template-columns:
+                            repeat(2, 1fr);
+                        gap:9px;
+                        margin-bottom:18px;
+                    ">
+
+                        <div class="info-box">
+
+                            <div class="info-label">
+                                Category
+                            </div>
+
+                            <div class="info-value">
+                                ${escapeHtml(
+                                    complaint.category
+                                )}
+                            </div>
+
+                        </div>
+
+                        <div class="info-box">
+
+                            <div class="info-label">
+                                Priority
+                            </div>
+
+                            <div class="info-value">
+                                ${escapeHtml(
+                                    complaint.priority
+                                ).toUpperCase()}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div style="
+                        font-size:11px;
+                        font-weight:800;
+                        color:#5b4bff;
+                        text-transform:uppercase;
+                        margin-bottom:9px;
+                    ">
+                        Complaint Conversation
+                    </div>
+
+                    ${messagesHtml}
+
+                </div>
+
+            `;
+
+        }
+        catch (error) {
+
+            console.error(
+                error
+            );
+
+            content.innerHTML =
+                `<div style="
+                    color:#d33;
+                    font-size:13px;
+                ">
+                    Unable to load complaint details.
+                </div>`;
+
+        }
+
+    }
+
+
+    function closeDetailsModal() {
+
+        document.getElementById(
+            "detailsModal"
+        ).classList.remove(
+            "active"
+        );
+
+    }
+
+
+    /* ============================================================
+       CLOSE MODALS ON BACKDROP
+    ============================================================ */
+
+    document
+        .getElementById(
+            "complaintModal"
+        )
+        .addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target === this
+                ) {
+
+                    closeComplaintModal();
+
+                }
+
+            }
+        );
+
+
+    document
+        .getElementById(
+            "detailsModal"
+        )
+        .addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target === this
+                ) {
+
+                    closeDetailsModal();
+
+                }
+
+            }
+        );
+
+
+    /* ============================================================
+       ENTER TO SEND
+    ============================================================ */
+
+    chatInput.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Enter"
+                &&
+                !event.shiftKey
+            ) {
+
+                event.preventDefault();
+
+                document
+                    .getElementById(
+                        "chatForm"
+                    )
+                    .dispatchEvent(
+                        new Event(
+                            "submit",
+                            {
+                                cancelable: true
+                            }
+                        )
+                    );
+
+            }
+
+        }
+    );
+
+
+    /* ============================================================
+       AUTO RESIZE TEXTAREA
+    ============================================================ */
+
+    chatInput.addEventListener(
+        "input",
+        function () {
+
+            this.style.height =
+                "45px";
+
+            this.style.height =
+                Math.min(
+                    this.scrollHeight,
+                    110
+                ) + "px";
+
+        }
+    );
+
+</script>
+
+{% endblock %}

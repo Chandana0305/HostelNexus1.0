@@ -1,0 +1,2745 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile | HostelNexus{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* =========================================================
+       PROFILE PAGE
+       ========================================================= */
+
+    .profile-page {
+        min-height: calc(100vh - 80px);
+        padding: 40px 0 60px;
+        background:
+            radial-gradient(
+                circle at 10% 10%,
+                rgba(91, 75, 255, 0.08),
+                transparent 28%
+            ),
+            radial-gradient(
+                circle at 90% 20%,
+                rgba(0, 191, 166, 0.08),
+                transparent 28%
+            ),
+            #f7f8fc;
+    }
+
+    .profile-container {
+        width: min(1180px, calc(100% - 40px));
+        margin: 0 auto;
+    }
+
+    /* =========================================================
+       PAGE HEADER
+       ========================================================= */
+
+    .profile-page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 28px;
+    }
+
+    .profile-page-heading h1 {
+        margin: 0 0 7px;
+        font-size: 30px;
+        line-height: 1.2;
+        color: #17172a;
+    }
+
+    .profile-page-heading p {
+        margin: 0;
+        color: #77788a;
+        font-size: 14px;
+    }
+
+    .back-dashboard-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 17px;
+        border: 1px solid #e3e4ee;
+        border-radius: 12px;
+        background: #ffffff;
+        color: #33344a;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.25s ease;
+        box-shadow: 0 5px 18px rgba(35, 35, 70, 0.04);
+    }
+
+    .back-dashboard-btn:hover {
+        color: #5b4bff;
+        border-color: rgba(91, 75, 255, 0.25);
+        transform: translateY(-2px);
+    }
+
+    /* =========================================================
+       PROFILE HERO
+       ========================================================= */
+
+    .profile-hero {
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 25px;
+        padding: 30px;
+        margin-bottom: 24px;
+        border-radius: 22px;
+        background:
+            linear-gradient(
+                135deg,
+                #5b4bff 0%,
+                #4537d5 55%,
+                #3730a3 100%
+            );
+        color: #ffffff;
+        box-shadow:
+            0 18px 45px rgba(91, 75, 255, 0.20);
+    }
+
+    .profile-hero::before {
+        content: "";
+        position: absolute;
+        width: 230px;
+        height: 230px;
+        border-radius: 50%;
+        right: -70px;
+        top: -100px;
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .profile-hero::after {
+        content: "";
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        right: 170px;
+        bottom: -100px;
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    .profile-identity {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 22px;
+    }
+
+    /* =========================================================
+       PROFILE PHOTO
+       ========================================================= */
+
+    .profile-photo-wrapper {
+        position: relative;
+        width: 105px;
+        height: 105px;
+        flex-shrink: 0;
+    }
+
+    .profile-photo,
+    .profile-photo-placeholder {
+        width: 105px;
+        height: 105px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid rgba(255, 255, 255, 0.9);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+        background: #ffffff;
+    }
+
+    .profile-photo-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(
+            135deg,
+            #ffffff,
+            #eef0ff
+        );
+        color: #5b4bff;
+        font-size: 38px;
+        font-weight: 700;
+    }
+
+    .photo-edit-button {
+        position: absolute;
+        right: -3px;
+        bottom: -3px;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 3px solid #5b4bff;
+        border-radius: 50%;
+        background: #ffffff;
+        color: #5b4bff;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+
+    .photo-edit-button:hover {
+        transform: scale(1.08);
+        background: #f1efff;
+    }
+
+    .profile-identity-text h2 {
+        margin: 0 0 6px;
+        font-size: 27px;
+    }
+
+    .profile-identity-text p {
+        margin: 0 0 10px;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 14px;
+    }
+
+    .profile-id-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 6px 10px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.13);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+    }
+
+    .profile-status-area {
+        position: relative;
+        z-index: 1;
+        text-align: right;
+    }
+
+    .status-label {
+        display: block;
+        margin-bottom: 8px;
+        color: rgba(255, 255, 255, 0.65);
+        font-size: 12px;
+    }
+
+    .approved-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 14px;
+        border-radius: 30px;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .approved-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #65f5c4;
+        box-shadow: 0 0 10px rgba(101, 245, 196, 0.8);
+    }
+
+    /* =========================================================
+       CONTENT GRID
+       ========================================================= */
+
+    .profile-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 22px;
+    }
+
+    .profile-card {
+        background: #ffffff;
+        border: 1px solid #e8e9f1;
+        border-radius: 18px;
+        box-shadow: 0 8px 30px rgba(30, 30, 65, 0.05);
+        overflow: hidden;
+    }
+
+    .profile-card.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .profile-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 20px 22px;
+        border-bottom: 1px solid #eeeeF4;
+    }
+
+    .profile-card-title {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .profile-card-icon {
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        background: #f0eeff;
+        color: #5b4bff;
+        font-size: 17px;
+    }
+
+    .profile-card-title h3 {
+        margin: 0;
+        color: #222238;
+        font-size: 16px;
+    }
+
+    .profile-card-title p {
+        margin: 3px 0 0;
+        color: #9192a1;
+        font-size: 11px;
+    }
+
+    .edit-card-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 12px;
+        border: 1px solid #dedff0;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #5b4bff;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 700;
+        transition: all 0.2s ease;
+    }
+
+    .edit-card-btn:hover {
+        border-color: #5b4bff;
+        background: #f6f4ff;
+    }
+
+    .profile-card-body {
+        padding: 22px;
+    }
+
+    /* =========================================================
+       INFORMATION ITEMS
+       ========================================================= */
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px 22px;
+    }
+
+    .info-item {
+        min-width: 0;
+    }
+
+    .info-label {
+        display: block;
+        margin-bottom: 5px;
+        color: #9293a2;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.45px;
+    }
+
+    .info-value {
+        color: #28283d;
+        font-size: 14px;
+        font-weight: 600;
+        word-break: break-word;
+    }
+
+    .info-value.muted {
+        color: #a7a8b5;
+        font-weight: 500;
+    }
+
+    /* =========================================================
+       ACADEMIC LOCKED FIELDS
+       ========================================================= */
+
+    .locked-info {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .locked-icon {
+        color: #a1a2b0;
+        font-size: 11px;
+    }
+
+    .academic-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        margin-top: 20px;
+        padding: 12px 13px;
+        border-radius: 11px;
+        background: #f7f6ff;
+        color: #68697b;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .academic-note i {
+        margin-top: 2px;
+        color: #5b4bff;
+    }
+
+    /* =========================================================
+       ADDRESS
+       ========================================================= */
+
+    .address-box {
+        padding: 15px 16px;
+        border-radius: 12px;
+        background: #f8f9fc;
+        color: #494a5d;
+        font-size: 14px;
+        line-height: 1.7;
+        min-height: 55px;
+    }
+
+    /* =========================================================
+       ACCOUNT CARD
+       ========================================================= */
+
+    .account-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 6px 10px;
+        border-radius: 8px;
+        background: #eafaf4;
+        color: #16875e;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .account-status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #20bd7e;
+    }
+
+    /* =========================================================
+       PHOTO ACTION MODAL
+       ========================================================= */
+
+    .profile-modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(15, 15, 30, 0.55);
+        backdrop-filter: blur(5px);
+    }
+
+    .profile-modal-overlay.active {
+        display: flex;
+    }
+
+    .profile-modal {
+        width: min(500px, 100%);
+        max-height: 90vh;
+        overflow-y: auto;
+        border-radius: 20px;
+        background: #ffffff;
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.22);
+        animation: profileModalIn 0.25s ease;
+    }
+
+    @keyframes profileModalIn {
+        from {
+            opacity: 0;
+            transform: translateY(15px) scale(0.97);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .profile-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 22px;
+        border-bottom: 1px solid #ececf3;
+    }
+
+    .profile-modal-header h3 {
+        margin: 0;
+        color: #222238;
+        font-size: 18px;
+    }
+
+    .profile-modal-close {
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 0;
+        border-radius: 9px;
+        background: #f3f3f7;
+        color: #6d6e7d;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .profile-modal-close:hover {
+        background: #ececf3;
+        color: #222238;
+    }
+
+    .profile-modal-body {
+        padding: 22px;
+    }
+
+    .photo-preview-area {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 22px;
+    }
+
+    .photo-preview {
+        width: 125px;
+        height: 125px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 4px solid #eeecff;
+        box-shadow: 0 8px 25px rgba(40, 40, 70, 0.1);
+    }
+
+    .photo-placeholder-large {
+        width: 125px;
+        height: 125px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        border: 4px solid #eeecff;
+        background: #f6f5ff;
+        color: #5b4bff;
+        font-size: 44px;
+        font-weight: 700;
+    }
+
+    .photo-upload-area {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 24px;
+        border: 2px dashed #dcdbea;
+        border-radius: 15px;
+        text-align: center;
+        background: #fafaff;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .photo-upload-area:hover {
+        border-color: #8c82ff;
+        background: #f7f5ff;
+    }
+
+    .photo-upload-icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        border-radius: 13px;
+        background: #eeecff;
+        color: #5b4bff;
+        font-size: 20px;
+    }
+
+    .photo-upload-area strong {
+        display: block;
+        color: #333449;
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+
+    .photo-upload-area span {
+        color: #999aa8;
+        font-size: 11px;
+    }
+
+    .hidden-file-input {
+        display: none;
+    }
+
+    .photo-actions {
+        display: flex;
+        align-items: stretch;
+        gap: 10px;
+        margin-top: 18px;
+    }
+
+    .photo-action-btn {
+        flex: 1;
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 12px;
+        border: 0;
+        box-sizing: border-box;
+        gap: 7px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 700;
+        transition: all 0.2s ease;
+    }
+
+    .photo-action-primary {
+        border: 0;
+        background: #5b4bff;
+        color: #ffffff;
+    }
+
+    .photo-action-primary:hover {
+        background: #4537d5;
+        transform: translateY(-1px);
+    }
+
+    .photo-action-danger {
+        border: 1px solid #f1caca;
+        background: #fff7f7;
+        color: #c84d4d;
+    }
+
+    .photo-action-danger:hover {
+        background: #fff0f0;
+    }
+
+    /* =========================================================
+       EDIT PROFILE MODAL
+       ========================================================= */
+
+    .edit-profile-modal {
+        width: min(760px, 100%);
+    }
+
+    .form-section-title {
+        margin: 4px 0 14px;
+        color: #303146;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+    .form-section-title:not(:first-child) {
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid #eeeeF4;
+    }
+
+    .profile-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .profile-form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .profile-form-group.full {
+        grid-column: 1 / -1;
+    }
+
+    .profile-form-group label {
+        color: #55566a;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .profile-form-group input,
+    .profile-form-group select,
+    .profile-form-group textarea {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 11px 12px;
+        border: 1px solid #dedfea;
+        border-radius: 10px;
+        outline: none;
+        background: #ffffff;
+        color: #292a3e;
+        font-family: inherit;
+        font-size: 13px;
+        transition: all 0.2s ease;
+    }
+
+    .profile-form-group textarea {
+        min-height: 90px;
+        resize: vertical;
+    }
+
+    .profile-form-group input:focus,
+    .profile-form-group select:focus,
+    .profile-form-group textarea:focus {
+        border-color: #8d84ff;
+        box-shadow: 0 0 0 3px rgba(91, 75, 255, 0.08);
+    }
+
+    .readonly-field {
+        background: #f5f5f8 !important;
+        color: #858696 !important;
+        cursor: not-allowed;
+    }
+
+    .readonly-help {
+        color: #9a9ba9;
+        font-size: 10px;
+    }
+
+    .edit-form-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 25px;
+        padding-top: 18px;
+        border-top: 1px solid #eeeeF4;
+    }
+
+    .modal-btn {
+        min-height: 42px;
+        padding: 0 17px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 700;
+        transition: all 0.2s ease;
+    }
+
+    .modal-btn-cancel {
+        border: 1px solid #dedfea;
+        background: #ffffff;
+        color: #55566a;
+    }
+
+    .modal-btn-cancel:hover {
+        background: #f7f7fa;
+    }
+
+    .modal-btn-save {
+        border: 0;
+        background: #5b4bff;
+        color: #ffffff;
+    }
+
+    .modal-btn-save:hover {
+        background: #4537d5;
+    }
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+
+    @media (max-width: 850px) {
+
+        .profile-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-card.full-width {
+            grid-column: auto;
+        }
+
+        .profile-hero {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .profile-status-area {
+            text-align: left;
+        }
+    }
+
+    @media (max-width: 650px) {
+
+        .profile-container {
+            width: min(100% - 24px, 1180px);
+        }
+
+        .profile-page {
+            padding-top: 25px;
+        }
+
+        .profile-page-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .profile-page-heading h1 {
+            font-size: 25px;
+        }
+
+        .profile-hero {
+            padding: 22px;
+            border-radius: 18px;
+        }
+
+        .profile-identity {
+            align-items: flex-start;
+        }
+
+        .profile-photo-wrapper,
+        .profile-photo,
+        .profile-photo-placeholder {
+            width: 82px;
+            height: 82px;
+        }
+
+        .profile-photo-placeholder {
+            font-size: 30px;
+        }
+
+        .profile-identity-text h2 {
+            font-size: 21px;
+        }
+
+        .info-grid,
+        .profile-form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-form-group.full {
+            grid-column: auto;
+        }
+
+        .profile-card-header,
+        .profile-card-body {
+            padding: 17px;
+        }
+
+        .photo-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="profile-page">
+
+    <div class="profile-container">
+
+        <!-- =====================================================
+             PAGE HEADER
+             ====================================================== -->
+
+        <div class="profile-page-header">
+
+            <div class="profile-page-heading">
+
+                <h1>My Profile</h1>
+
+                <p>
+                    Manage your personal information and profile photo.
+                </p>
+
+            </div>
+
+            <a
+                href="{{ url_for('auth.student_dashboard') }}"
+                class="back-dashboard-btn"
+            >
+                <i class="fa-solid fa-arrow-left"></i>
+                Dashboard
+            </a>
+
+        </div>
+
+
+        <!-- =====================================================
+             PROFILE HERO
+             ====================================================== -->
+
+        <section class="profile-hero">
+
+            <div class="profile-identity">
+
+                <div class="profile-photo-wrapper">
+
+                    {% if student.profile_photo %}
+
+                        <img
+                            id="profileHeroPhoto"
+                            class="profile-photo"
+                            src="{{ url_for('static', filename=student.profile_photo) }}"
+                            alt="Profile Photo"
+                        >
+
+                    {% else %}
+
+                        <div
+                            id="profileHeroPhoto"
+                            class="profile-photo-placeholder"
+                        >
+                            {{ student.first_name[0] | upper }}
+                        </div>
+
+                    {% endif %}
+
+                    <button
+                        type="button"
+                        class="photo-edit-button"
+                        onclick="openPhotoModal()"
+                        title="Manage profile photo"
+                    >
+                        <i class="fa-solid fa-camera"></i>
+                    </button>
+
+                </div>
+
+
+                <div class="profile-identity-text">
+
+                    <h2>
+                        {{ student.first_name }}
+                        {{ student.last_name }}
+                    </h2>
+
+                    <p>
+                        {{ student.course or "Student" }}
+                        {% if student.department %}
+                            • {{ student.department }}
+                        {% endif %}
+                    </p>
+
+                    <span class="profile-id-badge">
+                        <i class="fa-solid fa-id-card"></i>
+                        {{ student.student_id }}
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="profile-status-area">
+
+                <span class="status-label">
+                    Registration Status
+                </span>
+
+                <span class="approved-badge">
+
+                    <span class="approved-dot"></span>
+
+                    Approved
+
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             PROFILE CONTENT
+             ====================================================== -->
+
+        <div class="profile-grid">
+
+
+            <!-- =================================================
+                 PERSONAL INFORMATION
+                 ================================================== -->
+
+            <section class="profile-card">
+
+                <div class="profile-card-header">
+
+                    <div class="profile-card-title">
+
+                        <div class="profile-card-icon">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+
+                        <div>
+                            <h3>Personal Information</h3>
+                            <p>Your basic personal details</p>
+                        </div>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="edit-card-btn"
+                        onclick="openEditProfileModal()"
+                    >
+                        <i class="fa-solid fa-pen"></i>
+                        Edit
+                    </button>
+
+                </div>
+
+
+                <div class="profile-card-body">
+
+                    <div class="info-grid">
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                First Name
+                            </span>
+
+                            <div class="info-value">
+                                {{ student.first_name or "—" }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Last Name
+                            </span>
+
+                            <div class="info-value">
+                                {{ student.last_name or "—" }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Email
+                            </span>
+
+                            <div class="info-value">
+                                {{ student.email or "—" }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Phone
+                            </span>
+
+                            <div class="info-value">
+                                {{ student.phone or "—" }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Gender
+                            </span>
+
+                            <div class="info-value">
+                                {{ student.gender or "—" }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Date of Birth
+                            </span>
+
+                            <div class="info-value">
+                                {{ student.date_of_birth or "—" }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 ACADEMIC INFORMATION
+                 ================================================== -->
+
+            <section class="profile-card">
+
+                <div class="profile-card-header">
+
+                    <div class="profile-card-title">
+
+                        <div class="profile-card-icon">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+
+                        <div>
+                            <h3>Academic Information</h3>
+                            <p>Registered academic details</p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="profile-card-body">
+
+                    <div class="info-grid">
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Student ID / USN
+                            </span>
+
+                            <div class="info-value locked-info">
+
+                                <i class="fa-solid fa-lock locked-icon"></i>
+
+                                {{ student.student_id or "—" }}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Course
+                            </span>
+
+                            <div class="info-value locked-info">
+
+                                <i class="fa-solid fa-lock locked-icon"></i>
+
+                                {{ student.course or "—" }}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Department
+                            </span>
+
+                            <div class="info-value locked-info">
+
+                                <i class="fa-solid fa-lock locked-icon"></i>
+
+                                {{ student.department or "—" }}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Batch
+                            </span>
+
+                            <div class="info-value locked-info">
+
+                                <i class="fa-solid fa-lock locked-icon"></i>
+
+                                {{ student.batch or "—" }}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Current Year
+                            </span>
+
+                            <div class="info-value locked-info">
+
+                                <i class="fa-solid fa-lock locked-icon"></i>
+
+                                {{ student.year or "—" }}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="academic-note">
+
+                        <i class="fa-solid fa-circle-info"></i>
+
+                        <span>
+                            Academic details such as USN, course,
+                            department, batch and year are managed
+                            by the hostel administrator and cannot
+                            be changed from your profile.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 PARENT / GUARDIAN
+                 ================================================== -->
+
+            <section class="profile-card">
+
+                <div class="profile-card-header">
+
+                    <div class="profile-card-title">
+
+                        <div class="profile-card-icon">
+                            <i class="fa-solid fa-people-roof"></i>
+                        </div>
+
+                        <div>
+                            <h3>Parent / Guardian</h3>
+                            <p>Emergency contact information</p>
+                        </div>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="edit-card-btn"
+                        onclick="openEditProfileModal()"
+                    >
+                        <i class="fa-solid fa-pen"></i>
+                        Edit
+                    </button>
+
+                </div>
+
+
+                <div class="profile-card-body">
+
+                    <div class="info-grid">
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Parent / Guardian Name
+                            </span>
+
+                            <div class="info-value">
+                                {{ student.parent_name or "—" }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Parent Phone
+                            </span>
+
+                            <div class="info-value">
+                                {{ student.parent_phone or "—" }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 ACCOUNT INFORMATION
+                 ================================================== -->
+
+            <section class="profile-card">
+
+                <div class="profile-card-header">
+
+                    <div class="profile-card-title">
+
+                        <div class="profile-card-icon">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+
+                        <div>
+                            <h3>Account Information</h3>
+                            <p>HostelNexus account status</p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="profile-card-body">
+
+                    <div class="info-grid">
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Login Username
+                            </span>
+
+                            <div class="info-value">
+                                {{ student.username or "—" }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <span class="info-label">
+                                Account Status
+                            </span>
+
+                            <div>
+
+                                <span class="account-status">
+
+                                    <span class="account-status-dot"></span>
+
+                                    {{ student.account_status | title }}
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section class="profile-card full-width">
+
+                <div class="profile-card-header">
+                    <div class="profile-card-title">
+                        <div class="profile-card-icon">
+                            <i class="fa-solid fa-key"></i>
+                        </div>
+                        <div>
+                            <h3>Login Credentials</h3>
+                            <p>Change your username or password securely.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-card-body">
+                    <form id="credentialsForm">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <div class="profile-form-grid">
+                            <div class="profile-form-group">
+                                <label for="credentialUsername">Username</label>
+                                <input id="credentialUsername" name="username" value="{{ student.username }}" required minlength="4" maxlength="50">
+                            </div>
+                            <div class="profile-form-group">
+                                <label for="currentPassword">Current Password</label>
+                                <input id="currentPassword" name="current_password" type="password" required>
+                            </div>
+                            <div class="profile-form-group">
+                                <label for="newPassword">New Password</label>
+                                <input id="newPassword" name="new_password" type="password" minlength="8">
+                            </div>
+                            <div class="profile-form-group">
+                                <label for="confirmPassword">Confirm New Password</label>
+                                <input id="confirmPassword" name="confirm_password" type="password" minlength="8">
+                            </div>
+                        </div>
+                        <button type="submit" class="modal-btn modal-btn-save">Update Credentials</button>
+                    </form>
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 ADDRESS
+                 ================================================== -->
+
+            <section class="profile-card full-width">
+
+                <div class="profile-card-header">
+
+                    <div class="profile-card-title">
+
+                        <div class="profile-card-icon">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+
+                        <div>
+                            <h3>Address</h3>
+                            <p>Your registered residential address</p>
+                        </div>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="edit-card-btn"
+                        onclick="openEditProfileModal()"
+                    >
+                        <i class="fa-solid fa-pen"></i>
+                        Edit
+                    </button>
+
+                </div>
+
+
+                <div class="profile-card-body">
+
+                    <div class="address-box">
+                        {{ student.address or "No address has been added yet." }}
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     PROFILE PHOTO MODAL
+     ============================================================= -->
+
+<div
+    id="photoModal"
+    class="profile-modal-overlay"
+    onclick="closePhotoModalOnOverlay(event)"
+>
+
+    <div class="profile-modal">
+
+        <div class="profile-modal-header">
+
+            <h3>Manage Profile Photo</h3>
+
+            <button
+                type="button"
+                class="profile-modal-close"
+                onclick="closePhotoModal()"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+        </div>
+
+
+        <div class="profile-modal-body">
+
+            <div class="photo-preview-area">
+
+                {% if student.profile_photo %}
+
+                    <img
+                        id="photoPreview"
+                        class="photo-preview"
+                        src="{{ url_for('static', filename=student.profile_photo) }}"
+                        alt="Profile Preview"
+                    >
+
+                {% else %}
+
+                    <div
+                        id="photoPreview"
+                        class="photo-placeholder-large"
+                    >
+                        {{ student.first_name[0] | upper }}
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <form
+                id="photoUploadForm"
+                enctype="multipart/form-data"
+            >
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token }}"
+                >
+
+                <label
+                    for="profilePhotoInput"
+                    class="photo-upload-area"
+                >
+
+                    <div class="photo-upload-icon">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </div>
+
+                    <strong>
+                        Choose a new profile photo
+                    </strong>
+
+                    <span>
+                        JPG, JPEG, PNG or WEBP • Maximum 5 MB
+                    </span>
+
+                </label>
+
+
+                <input
+                    type="file"
+                    id="profilePhotoInput"
+                    name="profile_photo"
+                    class="hidden-file-input"
+                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                >
+
+
+                <div class="photo-actions">
+
+                    <button
+                        type="submit"
+                        class="photo-action-btn photo-action-primary"
+                    >
+                        <i class="fa-solid fa-upload"></i>
+                        Upload / Change
+                    </button>
+
+
+                    {% if student.profile_photo %}
+
+                    <button
+                        type="button"
+                        class="photo-action-btn photo-action-danger"
+                        onclick="deleteProfilePhoto()"
+                    >
+                        <i class="fa-solid fa-trash"></i>
+                        Delete Photo
+                    </button>
+
+                    {% endif %}
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     EDIT PROFILE MODAL
+     ============================================================= -->
+
+<div
+    id="editProfileModal"
+    class="profile-modal-overlay"
+    onclick="closeEditProfileOnOverlay(event)"
+>
+
+    <div class="profile-modal edit-profile-modal">
+
+        <div class="profile-modal-header">
+
+            <h3>Edit My Profile</h3>
+
+            <button
+                type="button"
+                class="profile-modal-close"
+                onclick="closeEditProfileModal()"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+        </div>
+
+
+        <div class="profile-modal-body">
+
+            <form id="editProfileForm">
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token }}"
+                >
+
+
+                <!-- PERSONAL -->
+
+                <div class="form-section-title">
+                    Personal Information
+                </div>
+
+
+                <div class="profile-form-grid">
+
+                    <div class="profile-form-group">
+
+                        <label for="editFirstName">
+                            First Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="editFirstName"
+                            name="first_name"
+                            value="{{ student.first_name or '' }}"
+                            maxlength="100"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="profile-form-group">
+
+                        <label for="editLastName">
+                            Last Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="editLastName"
+                            name="last_name"
+                            value="{{ student.last_name or '' }}"
+                            maxlength="100"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="profile-form-group">
+
+                        <label for="editEmail">
+                            Email Address
+                        </label>
+
+                        <input
+                            type="email"
+                            id="editEmail"
+                            name="email"
+                            value="{{ student.email or '' }}"
+                            maxlength="150"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="profile-form-group">
+
+                        <label for="editPhone">
+                            Phone Number
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="editPhone"
+                            name="phone"
+                            value="{{ student.phone or '' }}"
+                            maxlength="15"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="profile-form-group">
+
+                        <label for="editGender">
+                            Gender
+                        </label>
+
+                        <select
+                            id="editGender"
+                            name="gender"
+                        >
+
+                            <option value="">
+                                Select Gender
+                            </option>
+
+                            <option
+                                value="Male"
+                                {% if student.gender == "Male" %}selected{% endif %}
+                            >
+                                Male
+                            </option>
+
+                            <option
+                                value="Female"
+                                {% if student.gender == "Female" %}selected{% endif %}
+                            >
+                                Female
+                            </option>
+
+                            <option
+                                value="Other"
+                                {% if student.gender == "Other" %}selected{% endif %}
+                            >
+                                Other
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="profile-form-group">
+
+                        <label for="editDateOfBirth">
+                            Date of Birth
+                        </label>
+
+                        <input
+                            type="date"
+                            id="editDateOfBirth"
+                            name="date_of_birth"
+                            value="{{ student.date_of_birth or '' }}"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- ACADEMIC -->
+
+                <div class="form-section-title">
+                    Academic Information
+                </div>
+
+
+                <div class="profile-form-grid">
+
+                    <div class="profile-form-group">
+
+                        <label for="editStudentId">
+                            Student ID / USN
+                        </label>
+
+                        <input
+                            type="text"
+                            id="editStudentId"
+                            value="{{ student.student_id or '' }}"
+                            class="readonly-field"
+                            readonly
+                        >
+
+                        <span class="readonly-help">
+                            Managed by administrator
+                        </span>
+
+                    </div>
+
+
+                    <div class="profile-form-group">
+
+                        <label for="editCourse">
+                            Course
+                        </label>
+
+                        <input
+                            type="text"
+                            id="editCourse"
+                            value="{{ student.course or '' }}"
+                            class="readonly-field"
+                            readonly
+                        >
+
+                    </div>
+
+
+                    <div class="profile-form-group">
+
+                        <label for="editDepartment">
+                            Department
+                        </label>
+
+                        <input
+                            type="text"
+                            id="editDepartment"
+                            value="{{ student.department or '' }}"
+                            class="readonly-field"
+                            readonly
+                        >
+
+                    </div>
+
+
+                    <div class="profile-form-group">
+
+                        <label for="editBatch">
+                            Batch
+                        </label>
+
+                        <input
+                            type="text"
+                            id="editBatch"
+                            value="{{ student.batch or '' }}"
+                            class="readonly-field"
+                            readonly
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- PARENT -->
+
+                <div class="form-section-title">
+                    Parent / Guardian
+                </div>
+
+
+                <div class="profile-form-grid">
+
+                    <div class="profile-form-group">
+
+                        <label for="editParentName">
+                            Parent / Guardian Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="editParentName"
+                            name="parent_name"
+                            value="{{ student.parent_name or '' }}"
+                            maxlength="150"
+                        >
+
+                    </div>
+
+
+                    <div class="profile-form-group">
+
+                        <label for="editParentPhone">
+                            Parent Phone
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="editParentPhone"
+                            name="parent_phone"
+                            value="{{ student.parent_phone or '' }}"
+                            maxlength="15"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- ADDRESS -->
+
+                <div class="form-section-title">
+                    Residential Address
+                </div>
+
+
+                <div class="profile-form-grid">
+
+                    <div class="profile-form-group full">
+
+                        <label for="editAddress">
+                            Address
+                        </label>
+
+                        <textarea
+                            id="editAddress"
+                            name="address"
+                            maxlength="500"
+                            placeholder="Enter your residential address..."
+                        >{{ student.address or '' }}</textarea>
+
+                    </div>
+
+                </div>
+
+
+                <div class="edit-form-footer">
+
+                    <button
+                        type="button"
+                        class="modal-btn modal-btn-cancel"
+                        onclick="closeEditProfileModal()"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="modal-btn modal-btn-save"
+                        id="saveProfileButton"
+                    >
+                        <i class="fa-solid fa-check"></i>
+                        Save Changes
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+    // ============================================================
+    // CSRF
+    // ============================================================
+
+    const profileCSRFToken =
+        "{{ csrf_token }}";
+
+
+    // ============================================================
+    // PHOTO MODAL
+    // ============================================================
+
+    function openPhotoModal() {
+
+        const modal =
+            document.getElementById("photoModal");
+
+        if (modal) {
+            modal.classList.add("active");
+        }
+    }
+
+
+    function closePhotoModal() {
+
+        const modal =
+            document.getElementById("photoModal");
+
+        if (modal) {
+            modal.classList.remove("active");
+        }
+    }
+
+
+    function closePhotoModalOnOverlay(event) {
+
+        if (
+            event.target &&
+            event.target.id === "photoModal"
+        ) {
+            closePhotoModal();
+        }
+    }
+
+
+    // ============================================================
+    // PHOTO FILE PREVIEW
+    // ============================================================
+
+    const profilePhotoInput =
+        document.getElementById("profilePhotoInput");
+
+
+    if (profilePhotoInput) {
+
+        profilePhotoInput.addEventListener(
+            "change",
+            function () {
+
+                const file = this.files[0];
+
+                if (!file) {
+                    return;
+                }
+
+                const allowedTypes = [
+                    "image/jpeg",
+                    "image/png",
+                    "image/webp"
+                ];
+
+                if (
+                    !allowedTypes.includes(
+                        file.type
+                    )
+                ) {
+
+                    if (
+                        typeof showToast === "function"
+                    ) {
+
+                        showToast(
+                            "Please select a JPG, PNG or WEBP image.",
+                            "error"
+                        );
+
+                    } else {
+
+                        alert(
+                            "Please select a JPG, PNG or WEBP image."
+                        );
+                    }
+
+                    this.value = "";
+
+                    return;
+                }
+
+
+                if (
+                    file.size >
+                    5 * 1024 * 1024
+                ) {
+
+                    if (
+                        typeof showToast === "function"
+                    ) {
+
+                        showToast(
+                            "Profile photo must be 5 MB or smaller.",
+                            "error"
+                        );
+
+                    } else {
+
+                        alert(
+                            "Profile photo must be 5 MB or smaller."
+                        );
+                    }
+
+                    this.value = "";
+
+                    return;
+                }
+
+
+                const reader =
+                    new FileReader();
+
+
+                reader.onload = function (event) {
+
+                    const preview =
+                        document.getElementById(
+                            "photoPreview"
+                        );
+
+                    if (!preview) {
+                        return;
+                    }
+
+                    if (
+                        preview.tagName === "IMG"
+                    ) {
+
+                        preview.src =
+                            event.target.result;
+
+                    } else {
+
+                        const image =
+                            document.createElement(
+                                "img"
+                            );
+
+                        image.id =
+                            "photoPreview";
+
+                        image.className =
+                            "photo-preview";
+
+                        image.alt =
+                            "Profile Preview";
+
+                        image.src =
+                            event.target.result;
+
+                        preview.replaceWith(
+                            image
+                        );
+                    }
+                };
+
+
+                reader.readAsDataURL(file);
+            }
+        );
+    }
+
+
+    // ============================================================
+    // UPLOAD PROFILE PHOTO
+    // ============================================================
+
+    const photoUploadForm =
+        document.getElementById(
+            "photoUploadForm"
+        );
+
+
+    if (photoUploadForm) {
+
+        photoUploadForm.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+
+                const file =
+                    profilePhotoInput
+                        ? profilePhotoInput.files[0]
+                        : null;
+
+
+                if (!file) {
+
+                    if (
+                        typeof showToast === "function"
+                    ) {
+
+                        showToast(
+                            "Please select a profile photo first.",
+                            "error"
+                        );
+
+                    } else {
+
+                        alert(
+                            "Please select a profile photo first."
+                        );
+                    }
+
+                    return;
+                }
+
+
+                const formData =
+                    new FormData(
+                        photoUploadForm
+                    );
+
+
+                const submitButton =
+                    photoUploadForm.querySelector(
+                        'button[type="submit"]'
+                    );
+
+
+                const originalText =
+                    submitButton
+                        ? submitButton.innerHTML
+                        : "";
+
+
+                if (submitButton) {
+
+                    submitButton.disabled = true;
+
+                    submitButton.innerHTML =
+                        '<i class="fa-solid fa-spinner fa-spin"></i> Uploading...';
+                }
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "{{ url_for('student_profile.upload_profile_photo') }}",
+                            {
+                                method: "POST",
+                                body: formData,
+                                headers: {
+                                    "X-CSRFToken":
+                                        profileCSRFToken
+                                }
+                            }
+                        );
+
+
+                    const data =
+                        await response.json();
+
+
+                    if (!response.ok || !data.success) {
+
+                        throw new Error(
+                            data.message ||
+                            "Unable to upload profile photo."
+                        );
+                    }
+
+
+                    if (
+                        typeof showToast === "function"
+                    ) {
+
+                        showToast(
+                            data.message,
+                            "success"
+                        );
+                    }
+
+
+                    // Update hero image
+                    updateHeroPhoto(
+                        data.photo_url
+                    );
+
+
+                    // Update modal preview
+                    updatePhotoPreview(
+                        data.photo_url
+                    );
+
+
+                    setTimeout(
+                        function () {
+                            window.location.reload();
+                        },
+                        700
+                    );
+
+
+                } catch (error) {
+
+                    if (
+                        typeof showToast === "function"
+                    ) {
+
+                        showToast(
+                            error.message,
+                            "error"
+                        );
+
+                    } else {
+
+                        alert(
+                            error.message
+                        );
+                    }
+
+                } finally {
+
+                    if (submitButton) {
+
+                        submitButton.disabled =
+                            false;
+
+                        submitButton.innerHTML =
+                            originalText;
+                    }
+                }
+            }
+        );
+    }
+
+
+    // ============================================================
+    // UPDATE HERO PHOTO
+    // ============================================================
+
+    function updateHeroPhoto(photoURL) {
+
+        const heroPhoto =
+            document.getElementById(
+                "profileHeroPhoto"
+            );
+
+        if (!heroPhoto) {
+            return;
+        }
+
+
+        if (
+            heroPhoto.tagName === "IMG"
+        ) {
+
+            heroPhoto.src =
+                photoURL;
+
+            return;
+        }
+
+
+        const image =
+            document.createElement(
+                "img"
+            );
+
+        image.id =
+            "profileHeroPhoto";
+
+        image.className =
+            "profile-photo";
+
+        image.alt =
+            "Profile Photo";
+
+        image.src =
+            photoURL;
+
+
+        heroPhoto.replaceWith(
+            image
+        );
+    }
+
+
+    // ============================================================
+    // UPDATE PHOTO PREVIEW
+    // ============================================================
+
+    function updatePhotoPreview(photoURL) {
+
+        const preview =
+            document.getElementById(
+                "photoPreview"
+            );
+
+        if (!preview) {
+            return;
+        }
+
+
+        if (
+            preview.tagName === "IMG"
+        ) {
+
+            preview.src =
+                photoURL;
+
+            return;
+        }
+
+
+        const image =
+            document.createElement(
+                "img"
+            );
+
+        image.id =
+            "photoPreview";
+
+        image.className =
+            "photo-preview";
+
+        image.alt =
+            "Profile Preview";
+
+        image.src =
+            photoURL;
+
+
+        preview.replaceWith(
+            image
+        );
+    }
+
+
+    // ============================================================
+    // DELETE PROFILE PHOTO
+    // ============================================================
+
+    async function deleteProfilePhoto() {
+
+        const confirmed =
+            confirm(
+                "Are you sure you want to delete your profile photo?"
+            );
+
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        try {
+
+            const formData =
+                new FormData();
+
+
+            formData.append(
+                "csrf_token",
+                profileCSRFToken
+            );
+
+
+            const response =
+                await fetch(
+                    "{{ url_for('student_profile.delete_profile_photo') }}",
+                    {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "X-CSRFToken":
+                                profileCSRFToken
+                        }
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (
+                !response.ok ||
+                !data.success
+            ) {
+
+                throw new Error(
+                    data.message ||
+                    "Unable to delete profile photo."
+                );
+            }
+
+
+            if (
+                typeof showToast === "function"
+            ) {
+
+                showToast(
+                    data.message,
+                    "success"
+                );
+            }
+
+
+            setTimeout(
+                function () {
+                    window.location.reload();
+                },
+                700
+            );
+
+
+        } catch (error) {
+
+            if (
+                typeof showToast === "function"
+            ) {
+
+                showToast(
+                    error.message,
+                    "error"
+                );
+
+            } else {
+
+                alert(
+                    error.message
+                );
+            }
+        }
+    }
+
+
+    // ============================================================
+    // EDIT PROFILE MODAL
+    // ============================================================
+
+    function openEditProfileModal() {
+
+        const modal =
+            document.getElementById(
+                "editProfileModal"
+            );
+
+        if (modal) {
+            modal.classList.add("active");
+        }
+    }
+
+
+    function closeEditProfileModal() {
+
+        const modal =
+            document.getElementById(
+                "editProfileModal"
+            );
+
+        if (modal) {
+            modal.classList.remove("active");
+        }
+    }
+
+
+    function closeEditProfileOnOverlay(event) {
+
+        if (
+            event.target &&
+            event.target.id ===
+                "editProfileModal"
+        ) {
+
+            closeEditProfileModal();
+        }
+    }
+
+
+    // ============================================================
+    // UPDATE PROFILE
+    // ============================================================
+
+    const editProfileForm =
+        document.getElementById(
+            "editProfileForm"
+        );
+
+
+    if (editProfileForm) {
+
+        editProfileForm.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+
+                const saveButton =
+                    document.getElementById(
+                        "saveProfileButton"
+                    );
+
+
+                const originalText =
+                    saveButton
+                        ? saveButton.innerHTML
+                        : "";
+
+
+                if (saveButton) {
+
+                    saveButton.disabled =
+                        true;
+
+                    saveButton.innerHTML =
+                        '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+                }
+
+
+                const formData =
+                    new FormData(
+                        editProfileForm
+                    );
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "{{ url_for('student_profile.update_profile') }}",
+                            {
+                                method: "POST",
+                                body: formData,
+                                headers: {
+                                    "X-CSRFToken":
+                                        profileCSRFToken
+                                }
+                            }
+                        );
+
+
+                    const data =
+                        await response.json();
+
+
+                    if (
+                        !response.ok ||
+                        !data.success
+                    ) {
+
+                        throw new Error(
+                            data.message ||
+                            "Unable to update profile."
+                        );
+                    }
+
+
+                    if (
+                        typeof showToast === "function"
+                    ) {
+
+                        showToast(
+                            data.message,
+                            "success"
+                        );
+                    }
+
+
+                    setTimeout(
+                        function () {
+                            window.location.reload();
+                        },
+                        700
+                    );
+
+
+                } catch (error) {
+
+                    if (
+                        typeof showToast === "function"
+                    ) {
+
+                        showToast(
+                            error.message,
+                            "error"
+                        );
+
+                    } else {
+
+                        alert(
+                            error.message
+                        );
+                    }
+
+                } finally {
+
+                    if (saveButton) {
+
+                        saveButton.disabled =
+                            false;
+
+                        saveButton.innerHTML =
+                            originalText;
+                    }
+                }
+            }
+        );
+    }
+
+
+    const credentialsForm =
+        document.getElementById("credentialsForm");
+
+
+    if (credentialsForm) {
+
+        credentialsForm.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+                try {
+                    const response = await fetch(
+                        "{{ url_for('student_profile.update_credentials') }}",
+                        {
+                            method: "POST",
+                            body: new FormData(credentialsForm),
+                            headers: {
+                                "X-CSRFToken": profileCSRFToken
+                            }
+                        }
+                    );
+
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        throw new Error(
+                            data.message || "Unable to update credentials."
+                        );
+                    }
+
+                    showToast(data.message, "success");
+                    credentialsForm.reset();
+
+                } catch (error) {
+                    showToast(error.message, "error");
+                }
+            }
+        );
+    }
+
+
+    // ============================================================
+    // ESC KEY
+    // ============================================================
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (event.key !== "Escape") {
+                return;
+            }
+
+            closePhotoModal();
+
+            closeEditProfileModal();
+        }
+    );
+
+</script>
+
+{% endblock %}

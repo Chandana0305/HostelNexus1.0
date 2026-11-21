@@ -1,0 +1,905 @@
+
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard | HostelNexus{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --student-primary: #5145cd;
+        --student-primary-light: #eeedff;
+        --student-bg: #f6f7fb;
+        --student-text: #20243a;
+        --student-muted: #777d91;
+        --student-border: #e9eaf1;
+    }
+
+    body {
+        background: var(--student-bg);
+    }
+
+    .student-layout {
+        min-height: 100vh;
+        display: flex;
+        background: var(--student-bg);
+    }
+
+    /* SIDEBAR */
+
+    .student-sidebar {
+        width: 250px;
+        min-width: 250px;
+        background: #fff;
+        border-right: 1px solid var(--student-border);
+        display: flex;
+        flex-direction: column;
+        padding: 25px 17px;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1000;
+        transition: transform .25s ease;
+    }
+
+    .student-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0 10px;
+        margin-bottom: 42px;
+        text-decoration: none;
+    }
+
+    .student-brand-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 13px;
+        background: var(--student-primary);
+        color: white;
+        display: grid;
+        place-items: center;
+        font-size: 17px;
+        font-weight: 800;
+    }
+
+    .student-brand-name {
+        font-size: 19px;
+        font-weight: 800;
+        color: var(--student-text);
+        letter-spacing: -.5px;
+    }
+
+    .student-brand-subtitle {
+        display: block;
+        color: var(--student-muted);
+        font-size: 11px;
+        margin-top: 2px;
+    }
+
+    .student-nav-label {
+        padding: 0 12px;
+        margin-bottom: 12px;
+        color: #a0a3b2;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+    }
+
+    .student-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .student-nav a {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 12px 14px;
+        border-radius: 10px;
+        color: #72778b;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: .2s ease;
+    }
+
+    .student-nav a:hover {
+        background: #f5f4ff;
+        color: var(--student-primary);
+    }
+
+    .student-nav a.active {
+        background: var(--student-primary-light);
+        color: var(--student-primary);
+        font-weight: 700;
+    }
+
+    .student-nav-icon {
+        width: 21px;
+        text-align: center;
+        font-size: 17px;
+    }
+
+    .student-sidebar-bottom {
+        margin-top: auto;
+        padding-top: 20px;
+        border-top: 1px solid var(--student-border);
+    }
+
+    .student-sidebar-note {
+        background: #f7f7fc;
+        border-radius: 12px;
+        padding: 14px;
+        margin-bottom: 15px;
+    }
+
+    .student-sidebar-note strong {
+        display: block;
+        color: var(--student-text);
+        font-size: 12px;
+        margin-bottom: 5px;
+    }
+
+    .student-sidebar-note p {
+        color: var(--student-muted);
+        font-size: 11px;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .student-logout-form {
+        margin: 0;
+    }
+
+    .student-logout {
+        width: 100%;
+        border: none;
+        background: transparent;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        color: #d34b55;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        border-radius: 10px;
+    }
+
+    .student-logout:hover {
+        background: #fff1f1;
+    }
+
+    /* MAIN CONTENT */
+
+    .student-main {
+        flex: 1;
+        min-width: 0;
+        margin-left: 250px;
+        padding: 30px 38px 40px;
+    }
+
+    .student-topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 32px;
+    }
+
+    .student-breadcrumb {
+        color: var(--student-muted);
+        font-size: 12px;
+        margin-bottom: 5px;
+    }
+
+    .student-page-heading {
+        color: var(--student-text);
+        font-size: 22px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .student-topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .student-topbar-label {
+        text-align: right;
+    }
+
+    .student-topbar-label strong {
+        display: block;
+        font-size: 13px;
+        color: var(--student-text);
+    }
+
+    .student-topbar-label span {
+        font-size: 11px;
+        color: var(--student-muted);
+    }
+
+    .student-top-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 13px;
+        background: var(--student-primary-light);
+        color: var(--student-primary);
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        font-weight: 800;
+    }
+
+    .student-top-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .student-menu-button {
+        display: none;
+        border: 1px solid var(--student-border);
+        background: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        font-size: 19px;
+        cursor: pointer;
+    }
+
+    /* WELCOME PANEL */
+
+    .student-welcome {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(115deg, #5145cd, #7066e9);
+        border-radius: 18px;
+        padding: 32px 35px;
+        color: white;
+        margin-bottom: 27px;
+        box-shadow: 0 12px 30px rgba(81, 69, 205, .15);
+    }
+
+    .student-welcome::after {
+        content: "";
+        position: absolute;
+        width: 240px;
+        height: 240px;
+        border: 1px solid rgba(255,255,255,.12);
+        border-radius: 50%;
+        right: -55px;
+        top: -110px;
+        box-shadow:
+            0 0 0 25px rgba(255,255,255,.035),
+            0 0 0 55px rgba(255,255,255,.025);
+    }
+
+    .student-welcome-label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1.3px;
+        text-transform: uppercase;
+        opacity: .8;
+        margin-bottom: 11px;
+    }
+
+    .student-welcome h1 {
+        font-size: 27px;
+        font-weight: 800;
+        margin: 0 0 9px;
+        color: white;
+    }
+
+    .student-welcome p {
+        margin: 0;
+        color: rgba(255,255,255,.82);
+        font-size: 13px;
+        line-height: 1.7;
+        max-width: 550px;
+    }
+
+    /* STUDENT INFORMATION */
+
+    .student-section-heading {
+        font-size: 16px;
+        font-weight: 800;
+        color: var(--student-text);
+        margin: 0 0 16px;
+    }
+
+    .student-info-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 30px;
+    }
+
+    .student-info-card {
+        background: white;
+        border: 1px solid var(--student-border);
+        border-radius: 14px;
+        padding: 19px;
+        min-width: 0;
+        transition: .2s ease;
+    }
+
+    .student-info-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 22px rgba(25,30,60,.05);
+    }
+
+    .student-info-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+    }
+
+    .student-info-icon {
+        width: 37px;
+        height: 37px;
+        display: grid;
+        place-items: center;
+        border-radius: 11px;
+        background: var(--student-primary-light);
+        color: var(--student-primary);
+        font-size: 17px;
+    }
+
+    .student-info-label {
+        color: var(--student-muted);
+        font-size: 11px;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .student-info-value {
+        color: var(--student-text);
+        font-size: 16px;
+        font-weight: 800;
+        overflow-wrap: anywhere;
+    }
+
+    /* STUDENT IDENTITY CARD */
+
+    .student-identity {
+        background: white;
+        border: 1px solid var(--student-border);
+        border-radius: 15px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 30px;
+    }
+
+    .student-identity-avatar {
+        width: 57px;
+        height: 57px;
+        flex-shrink: 0;
+        border-radius: 15px;
+        background: linear-gradient(135deg, #5145cd, #00a995);
+        color: white;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        font-size: 19px;
+        font-weight: 800;
+    }
+
+    .student-identity-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .student-identity-details {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .student-identity-details h3 {
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--student-text);
+        margin: 0 0 5px;
+    }
+
+    .student-identity-details p {
+        font-size: 12px;
+        color: var(--student-muted);
+        margin: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .student-profile-link {
+        text-decoration: none;
+        color: var(--student-primary);
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .student-profile-link:hover {
+        text-decoration: underline;
+    }
+
+    /* SERVICES */
+
+    .student-services {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 17px;
+    }
+
+    .student-service-card {
+        display: block;
+        background: white;
+        border: 1px solid var(--student-border);
+        border-radius: 15px;
+        padding: 22px;
+        min-height: 165px;
+        text-decoration: none;
+        transition: .22s ease;
+    }
+
+    .student-service-card:hover {
+        transform: translateY(-4px);
+        border-color: #d7d3ff;
+        box-shadow: 0 12px 25px rgba(25,30,60,.07);
+    }
+
+    .student-service-icon {
+        width: 43px;
+        height: 43px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: var(--student-primary-light);
+        color: var(--student-primary);
+        font-size: 19px;
+        margin-bottom: 17px;
+    }
+
+    .student-service-card h3 {
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--student-text);
+        margin: 0 0 7px;
+    }
+
+    .student-service-card p {
+        color: var(--student-muted);
+        font-size: 11px;
+        line-height: 1.65;
+        margin: 0;
+    }
+
+    .student-service-arrow {
+        float: right;
+        color: #aaaabd;
+        font-size: 18px;
+        transition: .2s ease;
+    }
+
+    .student-service-card:hover .student-service-arrow {
+        color: var(--student-primary);
+        transform: translateX(4px);
+    }
+
+    .student-footer {
+        margin-top: 40px;
+        padding-top: 18px;
+        border-top: 1px solid var(--student-border);
+        color: var(--student-muted);
+        font-size: 11px;
+        text-align: center;
+    }
+
+    .student-overlay {
+        display: none;
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 1050px) {
+        .student-main {
+            padding: 27px 25px;
+        }
+
+        .student-info-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 760px) {
+        .student-sidebar {
+            transform: translateX(-100%);
+        }
+
+        .student-sidebar.open {
+            transform: translateX(0);
+        }
+
+        .student-main {
+            margin-left: 0;
+            padding: 22px 18px 35px;
+        }
+
+        .student-menu-button {
+            display: block;
+        }
+
+        .student-topbar {
+            justify-content: flex-start;
+        }
+
+        .student-topbar-right {
+            margin-left: auto;
+        }
+
+        .student-services {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .student-overlay.show {
+            display: block;
+            position: fixed;
+            inset: 0;
+            background: rgba(20,20,40,.38);
+            z-index: 999;
+        }
+    }
+
+    @media (max-width: 520px) {
+        .student-info-grid,
+        .student-services {
+            grid-template-columns: 1fr;
+        }
+
+        .student-welcome {
+            padding: 25px 22px;
+        }
+
+        .student-welcome h1 {
+            font-size: 22px;
+        }
+
+        .student-identity {
+            flex-wrap: wrap;
+        }
+
+        .student-profile-link {
+            margin-left: 73px;
+        }
+
+        .student-topbar-label {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+{% set first_name = student.first_name if student and student.first_name else session.get('username', 'Student') %}
+{% set last_name = student.last_name if student and student.last_name else '' %}
+{% set initials = (
+    (student.first_name[:1] if student and student.first_name else '') ~
+    (student.last_name[:1] if student and student.last_name else '')
+) | upper %}
+
+<div class="student-layout">
+
+    <!-- MOBILE OVERLAY -->
+    <div class="student-overlay" id="studentOverlay"
+         onclick="closeStudentSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="student-sidebar" id="studentSidebar">
+
+        <a href="{{ url_for('auth.student_dashboard') }}" class="student-brand">
+            <div class="student-brand-icon">HN</div>
+            <div>
+                <div class="student-brand-name">HostelNexus</div>
+                <span class="student-brand-subtitle">Student Portal</span>
+            </div>
+        </a>
+
+        <div class="student-nav-label">Workspace</div>
+
+        <nav class="student-nav">
+
+            <a href="{{ url_for('auth.student_dashboard') }}" class="active">
+                <span class="student-nav-icon">▦</span>
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('student_profile.profile') }}">
+                <span class="student-nav-icon">♙</span>
+                My Profile
+            </a>
+
+            <a href="{{ url_for('student_fees.fee_dashboard') }}">
+                <span class="student-nav-icon">₹</span>
+                Fees & Payments
+            </a>
+
+            <a href="{{ url_for('student_complaints.assistant') }}">
+                <span class="student-nav-icon">⚙</span>
+                Complaints
+            </a>
+
+        </nav>
+
+        <div class="student-sidebar-bottom">
+
+            <div class="student-sidebar-note">
+                <strong>Need assistance?</strong>
+                <p>Use the available hostel services to manage your student account.</p>
+            </div>
+
+            <form method="POST"
+                  action="{{ url_for('auth.logout') }}"
+                  class="student-logout-form">
+
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                <button type="submit" class="student-logout">
+                    <span>↪</span>
+                    Logout
+                </button>
+
+            </form>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="student-main">
+
+        <!-- TOPBAR -->
+        <header class="student-topbar">
+
+            <button type="button"
+                    class="student-menu-button"
+                    onclick="openStudentSidebar()"
+                    aria-label="Open navigation menu">
+                ☰
+            </button>
+
+            <div>
+                <div class="student-breadcrumb">Student Portal / Overview</div>
+                <h2 class="student-page-heading">Dashboard</h2>
+            </div>
+
+            <div class="student-topbar-right">
+
+                <div class="student-topbar-label">
+                    <strong>{{ first_name }} {{ last_name }}</strong>
+                    <span>Student Account</span>
+                </div>
+
+                <div class="student-top-avatar">
+                    {% if student and student.profile_photo %}
+                        <img src="{{ url_for('static', filename=student.profile_photo) }}"
+                             alt="Student profile photo">
+                    {% else %}
+                        {{ initials if initials else 'S' }}
+                    {% endif %}
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- WELCOME -->
+        <section class="student-welcome">
+
+            <div class="student-welcome-label">Your student workspace</div>
+
+            <h1>Welcome back, {{ first_name }}!</h1>
+
+            <p>
+                Manage your student profile, keep track of your hostel services
+                and access your important account information from one place.
+            </p>
+
+        </section>
+
+
+        <!-- STUDENT IDENTITY -->
+        <h3 class="student-section-heading">Student Information</h3>
+
+        <section class="student-identity">
+
+            <div class="student-identity-avatar">
+
+                {% if student and student.profile_photo %}
+                    <img src="{{ url_for('static', filename=student.profile_photo) }}"
+                         alt="Student profile photo">
+                {% else %}
+                    {{ initials if initials else 'S' }}
+                {% endif %}
+
+            </div>
+
+            <div class="student-identity-details">
+
+                <h3>{{ first_name }} {{ last_name }}</h3>
+
+                <p>
+                    USN:
+                    {{ student.student_id if student and student.student_id else 'Not Available' }}
+                </p>
+
+            </div>
+
+            <a href="{{ url_for('student_profile.profile') }}"
+               class="student-profile-link">
+                View Profile →
+            </a>
+
+        </section>
+
+
+        <!-- ACADEMIC INFORMATION -->
+        <h3 class="student-section-heading">Academic Overview</h3>
+
+        <section class="student-info-grid">
+
+            <div class="student-info-card">
+                <div class="student-info-top">
+                    <div class="student-info-icon">▤</div>
+                </div>
+                <div class="student-info-label">Department</div>
+                <div class="student-info-value">
+                    {{ student.department if student and student.department else 'Not Available' }}
+                </div>
+            </div>
+
+            <div class="student-info-card">
+                <div class="student-info-top">
+                    <div class="student-info-icon">⌂</div>
+                </div>
+                <div class="student-info-label">Course</div>
+                <div class="student-info-value">
+                    {{ student.course if student and student.course else 'Not Available' }}
+                </div>
+            </div>
+
+            <div class="student-info-card">
+                <div class="student-info-top">
+                    <div class="student-info-icon">▦</div>
+                </div>
+                <div class="student-info-label">Batch</div>
+                <div class="student-info-value">
+                    {{ student.batch if student and student.batch else 'Not Available' }}
+                </div>
+            </div>
+
+            <div class="student-info-card">
+                <div class="student-info-top">
+                    <div class="student-info-icon">◷</div>
+                </div>
+                <div class="student-info-label">Academic Year</div>
+                <div class="student-info-value">
+                    {{ student.year if student and student.year else 'Not Available' }}
+                </div>
+            </div>
+
+            <div class="student-info-card">
+                <div class="student-info-top">
+                    <div class="student-info-icon">✉</div>
+                </div>
+                <div class="student-info-label">Email Address</div>
+                <div class="student-info-value">
+                    {{ student.email if student and student.email else 'Not Available' }}
+                </div>
+            </div>
+
+            <div class="student-info-card">
+                <div class="student-info-top">
+                    <div class="student-info-icon">☎</div>
+                </div>
+                <div class="student-info-label">Phone Number</div>
+                <div class="student-info-value">
+                    {{ student.phone if student and student.phone else 'Not Available' }}
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- HOSTEL SERVICES -->
+        <h3 class="student-section-heading">Hostel Services</h3>
+
+        <section class="student-services">
+
+            <a href="{{ url_for('student_profile.profile') }}"
+               class="student-service-card">
+
+                <span class="student-service-arrow">→</span>
+
+                <div class="student-service-icon">♙</div>
+
+                <h3>My Profile</h3>
+
+                <p>
+                    View and update your personal details and profile information.
+                </p>
+
+            </a>
+
+
+            <a href="{{ url_for('student_fees.fee_dashboard') }}"
+               class="student-service-card">
+
+                <span class="student-service-arrow">→</span>
+
+                <div class="student-service-icon">₹</div>
+
+                <h3>Fees & Payments</h3>
+
+                <p>
+                    Access your hostel fee details, payment history and receipts.
+                </p>
+
+            </a>
+
+
+            <a href="{{ url_for('student_complaints.assistant') }}"
+               class="student-service-card">
+
+                <span class="student-service-arrow">→</span>
+
+                <div class="student-service-icon">⚙</div>
+
+                <h3>Complaints</h3>
+
+                <p>
+                    Access the complaint system to submit and manage hostel concerns.
+                </p>
+
+            </a>
+
+        </section>
+
+
+        <footer class="student-footer">
+            © {{ 2026 }} HostelNexus · Student Portal
+        </footer>
+
+    </main>
+
+</div>
+
+<script>
+    function openStudentSidebar() {
+        document.getElementById("studentSidebar").classList.add("open");
+        document.getElementById("studentOverlay").classList.add("show");
+    }
+
+    function closeStudentSidebar() {
+        document.getElementById("studentSidebar").classList.remove("open");
+        document.getElementById("studentOverlay").classList.remove("show");
+    }
+
+    window.addEventListener("resize", function () {
+        if (window.innerWidth > 760) {
+            closeStudentSidebar();
+        }
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}
+    HostelNexus | Smart Hostel Management
+{% endblock %}
+
+
+{% block content %}
+
+<header class="site-header">
+
+    <div class="container">
+
+        <a href="{{ url_for('home') }}"
+           class="brand">
+
+            <div class="brand-logo">
+                HN
+            </div>
+
+            <div class="brand-text">
+                <span class="brand-name">
+                    HostelNexus
+                </span>
+
+                <span class="brand-tagline">
+                    Smart Hostel Management
+                </span>
+            </div>
+
+        </a>
+
+
+        <nav class="main-navigation">
+
+            <a href="#home">
+                Home
+            </a>
+
+            <a href="#features">
+                Features
+            </a>
+
+            <a href="#about">
+                About
+            </a>
+
+            <a href="{{ url_for('login') }}">
+                Login
+            </a>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+<main>
+
+    <!-- Hero Section -->
+
+    <section id="home"
+             class="hero-section reveal">
+
+        <div class="container">
+
+            <div class="hero-content">
+
+                <span class="hero-badge">
+                    BIET • Information Science Department
+                </span>
+
+                <h1>
+                    Smarter Hostel
+                    <span>Management.</span>
+                </h1>
+
+                <p>
+                    HostelNexus is a modern hostel management
+                    platform designed to simplify hostel life
+                    for students and administrators.
+                </p>
+
+                <div class="hero-actions">
+
+                    <a href="{{ url_for('login') }}"
+                       class="btn btn-primary">
+                        Student Login
+                    </a>
+
+                    <a href="{{ url_for('login') }}"
+                       class="btn btn-secondary">
+                        Admin Login
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Features Section -->
+
+    <section id="features"
+             class="features-section-reveal">
+
+        <div class="container">
+
+            <div class="section-heading">
+
+                <span>
+                    HOSTELNEXUS
+                </span>
+
+                <h2>
+                    Everything in one place.
+                </h2>
+
+                <p>
+                    A centralized platform for managing
+                    hostel operations and student services.
+                </p>
+
+            </div>
+
+
+            <div class="feature-grid">
+
+                <article class="feature-card">
+
+                    <div class="feature-icon">
+                        🏠
+                    </div>
+
+                    <h3>
+                        Room Management
+                    </h3>
+
+                    <p>
+                        Manage blocks, rooms, beds and
+                        student allocations efficiently.
+                    </p>
+
+                </article>
+
+
+                <article class="feature-card">
+
+                    <div class="feature-icon">
+                        💳
+                    </div>
+
+                    <h3>
+                        Fee Management
+                    </h3>
+
+                    <p>
+                        Track payments, pending fees and
+                        download payment receipts.
+                    </p>
+
+                </article>
+
+
+                <article class="feature-card">
+
+                    <div class="feature-icon">
+                        🤖
+                    </div>
+
+                    <h3>
+                        AI Hostel Assistant
+                    </h3>
+
+                    <p>
+                        Get intelligent assistance and
+                        manage hostel complaints through AI.
+                    </p>
+
+                </article>
+
+
+                <article class="feature-card">
+
+                    <div class="feature-icon">
+                        📢
+                    </div>
+
+                    <h3>
+                        Smart Notifications
+                    </h3>
+
+                    <p>
+                        Stay updated with hostel announcements,
+                        payments and complaint updates.
+                    </p>
+
+                </article>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- About Section -->
+
+    <section id="about"
+             class="about-section-reveal">
+
+        <div class="container">
+
+            <div class="about-content">
+
+                <span>
+                    ABOUT HOSTELNEXUS
+                </span>
+
+                <h2>
+                    Built for modern hostel management.
+                </h2>
+
+                <p>
+                    HostelNexus is being developed for
+                    students of the Information Science
+                    Department at Bapuji Institute of
+                    Engineering and Technology, Davangere.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer class="site-footer">
+
+    <div class="container">
+
+        <p>
+            © 2026 HostelNexus • BIET Engineering College
+        </p>
+
+    </div>
+
+</footer>
+
+{% endblock %}

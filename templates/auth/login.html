@@ -1,0 +1,362 @@
+{% extends "base.html" %}
+
+{% block title %}Login | HostelNexus{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="auth-page">
+
+    <div class="auth-background-shape shape-one"></div>
+    <div class="auth-background-shape shape-two"></div>
+
+    <div class="auth-container">
+
+        <!-- LEFT SIDE -->
+        <div class="auth-brand-panel">
+
+            <div class="auth-brand-logo">
+                <span>HN</span>
+            </div>
+
+            <div class="auth-brand-content">
+
+                <span class="auth-small-label">
+                    BIET ENGINEERING COLLEGE
+                </span>
+
+                <h1>
+                    Welcome back to
+                    <strong>HostelNexus</strong>
+                </h1>
+
+                <p>
+                    Your smart, secure and connected
+                    hostel management platform.
+                </p>
+
+                <div class="auth-feature-list">
+
+                    <div class="auth-feature-item">
+                        <div class="auth-feature-icon">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+
+                        <div>
+                            <strong>Secure Access</strong>
+                            <span>
+                                Protected student and admin accounts
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="auth-feature-item">
+                        <div class="auth-feature-icon">
+                            <i class="fa-solid fa-building"></i>
+                        </div>
+
+                        <div>
+                            <strong>Smart Hostel Management</strong>
+                            <span>
+                                Rooms, fees, complaints and more
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="auth-feature-item">
+                        <div class="auth-feature-icon">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+
+                        <div>
+                            <strong>AI Hostel Assistant</strong>
+                            <span>
+                                Get intelligent hostel assistance
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="auth-brand-footer">
+                <span>HostelNexus</span>
+                <span>•</span>
+                <span>BIET IS Department</span>
+            </div>
+
+        </div>
+
+
+        <!-- RIGHT SIDE -->
+        <div class="auth-form-panel">
+
+            <div class="auth-form-wrapper">
+
+                <div class="auth-form-header">
+
+                    <span class="auth-mobile-logo">
+                        HN
+                    </span>
+
+                    <h2>Sign In</h2>
+
+                    <p>
+                        Enter your credentials to continue
+                    </p>
+
+                </div>
+
+
+                <!-- SERVER ERROR -->
+                {% if error %}
+                <div class="auth-alert auth-alert-error">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+
+                    <span>{{ error }}</span>
+                </div>
+                {% endif %}
+
+
+                <!-- LOGIN FORM -->
+                <form
+                    id="loginForm"
+                    class="auth-form"
+                    method="POST"
+                    action="{{ url_for('auth.login_user') }}"
+                    novalidate
+                >
+
+                    <!-- CSRF -->
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token }}"
+                    >
+
+
+                    <!-- ROLE -->
+                    <div class="form-group">
+
+                        <label for="role">
+                            Login As
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">
+                                <i class="fa-solid fa-user-shield"></i>
+                            </span>
+
+                            <select
+                                id="role"
+                                name="role"
+                                required
+                            >
+                                <option value="">
+                                    Select account type
+                                </option>
+
+                                <option value="student">
+                                    Student
+                                </option>
+
+                                <option value="admin">
+                                    Administrator
+                                </option>
+                            </select>
+
+                            <span class="input-arrow">
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </span>
+
+                        </div>
+
+                        <small
+                            class="field-error"
+                            id="roleError"
+                        ></small>
+
+                    </div>
+
+
+                    <!-- USERNAME -->
+                    <div class="form-group">
+
+                        <label for="username">
+                            Username
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">
+                                <i class="fa-solid fa-user"></i>
+                            </span>
+
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                placeholder="Enter your username"
+                                autocomplete="username"
+                                maxlength="50"
+                                required
+                            >
+
+                        </div>
+
+                        <small
+                            class="field-error"
+                            id="usernameError"
+                        ></small>
+
+                    </div>
+
+
+                    <!-- PASSWORD -->
+                    <div class="form-group">
+
+                        <div class="label-row">
+
+                            <label for="password">
+                                Password
+                            </label>
+
+                            <a
+                                href="#"
+                                class="forgot-password"
+                                onclick="showToast('Password recovery will be available soon.', 'info'); return false;"
+                            >
+                                Forgot Password?
+                            </a>
+
+                        </div>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">
+                                <i class="fa-solid fa-lock"></i>
+                            </span>
+
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Enter your password"
+                                autocomplete="current-password"
+                                maxlength="128"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                onclick="togglePassword('password', this)"
+                                aria-label="Show password"
+                            >
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+
+                        </div>
+
+                        <small
+                            class="field-error"
+                            id="passwordError"
+                        ></small>
+
+                    </div>
+
+
+                    <!-- REMEMBER -->
+                    <div class="form-options">
+
+                        <label class="checkbox-label">
+
+                            <input
+                                type="checkbox"
+                                name="remember"
+                                value="1"
+                            >
+
+                            <span class="custom-checkbox">
+                                <i class="fa-solid fa-check"></i>
+                            </span>
+
+                            <span>
+                                Remember me
+                            </span>
+
+                        </label>
+
+                    </div>
+
+
+                    <!-- SUBMIT -->
+                    <button
+                        type="submit"
+                        id="loginButton"
+                        class="auth-submit-btn"
+                    >
+
+                        <span class="button-text">
+                            Sign In
+                        </span>
+
+                        <span class="button-loader">
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+                            Signing in...
+                        </span>
+
+                        <i class="fa-solid fa-arrow-right button-arrow"></i>
+
+                    </button>
+
+                </form>
+
+
+                <!-- REGISTER -->
+                <div class="auth-divider">
+                    <span>OR</span>
+                </div>
+
+                <div class="register-prompt">
+
+                    <span>
+                        Don't have a student account?
+                    </span>
+
+                    <a href="{{ url_for('auth.register') }}">
+                        Create Account
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+
+                </div>
+
+
+                <!-- BACK HOME -->
+                <a
+                    href="{{ url_for('home') }}"
+                    class="back-home"
+                >
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Back to HostelNexus
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,1827 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard | HostelNexus{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+<style>
+    /* =====================================================
+       HOSTELNEXUS ADMIN DASHBOARD
+       ===================================================== */
+
+    .admin-dashboard .welcome-banner {
+        background:
+            radial-gradient(
+                circle at 88% 15%,
+                rgba(255, 255, 255, 0.15),
+                transparent 24%
+            ),
+            radial-gradient(
+                circle at 70% 100%,
+                rgba(0, 191, 166, 0.16),
+                transparent 30%
+            ),
+            linear-gradient(
+                135deg,
+                #4537d5,
+                #3529b9 55%,
+                #29209d
+            );
+    }
+
+    .admin-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+
+        margin-bottom: 15px;
+        padding: 7px 11px;
+
+        border-radius: 999px;
+
+        color: rgba(255, 255, 255, 0.85);
+
+        background: rgba(255, 255, 255, 0.11);
+
+        border: 1px solid rgba(255, 255, 255, 0.13);
+
+        font-size: 8px;
+        font-weight: 900;
+
+        letter-spacing: 0.9px;
+    }
+
+    .admin-badge i {
+        color: #bdfcf2;
+    }
+
+    .admin-management-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+
+        gap: 15px;
+
+        margin-top: 18px;
+    }
+
+    .admin-module-card {
+        position: relative;
+
+        min-height: 125px;
+
+        padding: 18px;
+
+        border-radius: 16px;
+
+        background: #ffffff;
+
+        border: 1px solid #e9ebf1;
+
+        box-shadow:
+            0 5px 20px rgba(30, 35, 90, 0.035);
+
+        cursor: pointer;
+
+        overflow: hidden;
+
+        transition:
+            transform 0.25s ease,
+            box-shadow 0.25s ease,
+            border-color 0.25s ease;
+    }
+
+    .admin-module-card:hover {
+        transform: translateY(-4px);
+
+        border-color: #dedbff;
+
+        box-shadow:
+            0 14px 30px rgba(30, 35, 90, 0.08);
+    }
+
+    .admin-module-icon {
+        width: 39px;
+        height: 39px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        margin-bottom: 13px;
+
+        border-radius: 11px;
+
+        color: #5b4bff;
+
+        background: #efeeff;
+
+        font-size: 14px;
+    }
+
+    .admin-module-card:nth-child(2) .admin-module-icon {
+        color: #15977f;
+        background: #eaf9f5;
+    }
+
+    .admin-module-card:nth-child(3) .admin-module-icon {
+        color: #d18a20;
+        background: #fff7e8;
+    }
+
+    .admin-module-card:nth-child(4) .admin-module-icon {
+        color: #e45c68;
+        background: #fff0f2;
+    }
+
+    .admin-module-card:nth-child(5) .admin-module-icon {
+        color: #4c82c9;
+        background: #edf5ff;
+    }
+
+    .admin-module-card:nth-child(6) .admin-module-icon {
+        color: #8b63c7;
+        background: #f4efff;
+    }
+
+    .admin-module-card:nth-child(7) .admin-module-icon {
+        color: #d36d48;
+        background: #fff1ec;
+    }
+
+    .admin-module-card:nth-child(8) .admin-module-icon {
+        color: #168d99;
+        background: #ebf9fb;
+    }
+
+    .dashboard-stats,
+    .dashboard-main-grid,
+    .ai-dashboard-banner {
+        display: none;
+    }
+
+    .topbar-icon-button,
+    .welcome-ai-button {
+        display: none;
+    }
+
+    .admin-module-card:nth-child(n + 6) {
+        display: none;
+    }
+
+    .admin-module-card h4 {
+        margin: 0;
+
+        color: #354055;
+
+        font-size: 11px;
+        font-weight: 900;
+    }
+
+    .admin-module-card p {
+        margin: 5px 0 0;
+
+        color: #9aa2b0;
+
+        font-size: 8px;
+        line-height: 1.5;
+    }
+
+    .admin-module-arrow {
+        position: absolute;
+
+        top: 18px;
+        right: 17px;
+
+        color: #c0c5ce;
+
+        font-size: 9px;
+
+        transition:
+            color 0.2s ease,
+            transform 0.2s ease;
+    }
+
+    .admin-module-card:hover .admin-module-arrow {
+        color: #5b4bff;
+
+        transform: translate(2px, -2px);
+    }
+
+    .admin-pending-card {
+        position: relative;
+
+        padding: 20px;
+
+        border-radius: 16px;
+
+        background: #ffffff;
+
+        border: 1px solid #e9ebf1;
+
+        box-shadow:
+            0 5px 20px rgba(30, 35, 90, 0.035);
+    }
+
+    .admin-pending-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        margin-bottom: 18px;
+    }
+
+    .admin-pending-header h3 {
+        margin: 0;
+
+        color: #283247;
+
+        font-size: 15px;
+        font-weight: 900;
+    }
+
+    .pending-count {
+        min-width: 24px;
+        height: 24px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 8px;
+
+        color: #b3751e;
+
+        background: #fff4df;
+
+        font-size: 9px;
+        font-weight: 900;
+    }
+
+    .admin-student-placeholder {
+        min-height: 145px;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        padding: 15px;
+
+        border-radius: 12px;
+
+        background: #fafbfe;
+
+        border: 1px dashed #e1e4eb;
+
+        text-align: center;
+    }
+
+    .admin-student-placeholder-icon {
+        width: 39px;
+        height: 39px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        margin-bottom: 9px;
+
+        border-radius: 11px;
+
+        color: #d18a20;
+
+        background: #fff5e2;
+
+        font-size: 13px;
+    }
+
+    .admin-student-placeholder strong {
+        color: #667084;
+
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    .admin-student-placeholder span {
+        max-width: 280px;
+
+        margin-top: 4px;
+
+        color: #a0a7b4;
+
+        font-size: 8px;
+        line-height: 1.5;
+    }
+
+    .admin-view-students {
+        height: 34px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+
+        margin-top: 12px;
+        padding: 0 12px;
+
+        border: 0;
+        border-radius: 8px;
+
+        color: #ffffff;
+
+        background: #5b4bff;
+
+        font-family: inherit;
+        font-size: 9px;
+        font-weight: 800;
+
+        cursor: pointer;
+
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+    .admin-view-students:hover {
+        transform: translateY(-1px);
+
+        box-shadow:
+            0 7px 15px rgba(91, 75, 255, 0.18);
+    }
+
+    .admin-system-card {
+        padding: 20px;
+
+        border-radius: 16px;
+
+        background: #ffffff;
+
+        border: 1px solid #e9ebf1;
+
+        box-shadow:
+            0 5px 20px rgba(30, 35, 90, 0.035);
+    }
+
+    .admin-system-list {
+        display: flex;
+        flex-direction: column;
+        gap: 11px;
+    }
+
+    .system-status-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        padding-bottom: 10px;
+
+        border-bottom: 1px solid #f0f1f5;
+    }
+
+    .system-status-row:last-child {
+        padding-bottom: 0;
+
+        border-bottom: 0;
+    }
+
+    .system-status-name {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        color: #657084;
+
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+    .system-status-name i {
+        width: 24px;
+        height: 24px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 7px;
+
+        color: #5b4bff;
+
+        background: #efeeff;
+
+        font-size: 9px;
+    }
+
+    .system-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+
+        color: #15977f;
+
+        font-size: 8px;
+        font-weight: 800;
+    }
+
+    .system-status::before {
+        content: "";
+
+        width: 5px;
+        height: 5px;
+
+        border-radius: 50%;
+
+        background: #19aa8d;
+    }
+
+    .admin-quick-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 10px;
+    }
+
+    .admin-quick-action {
+        min-height: 78px;
+
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+
+        padding: 12px;
+
+        border: 1px solid #eceef3;
+        border-radius: 11px;
+
+        background: #ffffff;
+
+        cursor: pointer;
+
+        text-align: left;
+
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease,
+            border-color 0.2s ease;
+    }
+
+    .admin-quick-action:hover {
+        transform: translateY(-2px);
+
+        border-color: #dddafc;
+
+        box-shadow:
+            0 7px 18px rgba(30, 35, 90, 0.06);
+    }
+
+    .admin-quick-action i {
+        margin-bottom: 8px;
+
+        color: #5b4bff;
+
+        font-size: 12px;
+    }
+
+    .admin-quick-action strong {
+        color: #4a5569;
+
+        font-size: 9px;
+        font-weight: 800;
+    }
+
+    .admin-quick-action span {
+        margin-top: 3px;
+
+        color: #9ba2b0;
+
+        font-size: 8px;
+    }
+
+    @media (max-width: 1150px) {
+        .admin-management-grid {
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 900px) {
+        .admin-management-grid {
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 600px) {
+        .admin-management-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .admin-dashboard .welcome-banner {
+            padding: 25px 22px;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="dashboard-page admin-dashboard">
+
+    <!-- =====================================================
+         SIDEBAR
+         ===================================================== -->
+
+    <aside class="dashboard-sidebar" id="adminSidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="sidebar-logo">
+                HN
+            </div>
+
+            <div class="sidebar-brand-text">
+                <strong>HostelNexus</strong>
+                <span>Admin Portal</span>
+            </div>
+
+            <button
+                type="button"
+                class="sidebar-close"
+                onclick="closeAdminSidebar()"
+                aria-label="Close menu"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+        </div>
+
+
+        <div class="sidebar-profile">
+
+            <div class="sidebar-profile-avatar">
+
+                <span>
+                    {{
+                        (
+                            admin_username[0]
+                            if admin_username
+                            else 'A'
+                        )|upper
+                    }}
+                </span>
+
+                <span class="online-dot"></span>
+
+            </div>
+
+            <div class="sidebar-profile-info">
+
+                <strong>
+                    {{ admin_username or "Administrator" }}
+                </strong>
+
+                <span>
+                    System Administrator
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+            <div class="sidebar-nav-label">
+                MAIN MENU
+            </div>
+
+            <a
+                href="{{ url_for('auth.admin_dashboard') }}"
+                class="sidebar-nav-item active"
+                data-section="overview"
+            >
+                <span class="nav-icon">
+                    <i class="fa-solid fa-grid-2"></i>
+                </span>
+
+                <span>Dashboard</span>
+            </a>
+
+
+            <a
+                href="{{ url_for('admin_students.students') }}"
+                class="sidebar-nav-item"
+                data-section="students"
+            >
+                <span class="nav-icon">
+                    <i class="fa-solid fa-user-graduate"></i>
+                </span>
+
+                <span>Students</span>
+
+            </a>
+
+
+            <a
+                href="{{ url_for('admin_hostel.hostel_management') }}"
+                class="sidebar-nav-item"
+                data-section="rooms"
+            >
+                <span class="nav-icon">
+                    <i class="fa-solid fa-building"></i>
+                </span>
+
+                <span>Rooms & Blocks</span>
+            </a>
+
+
+            <a
+                href="{{ url_for('admin_allocation.allocation_dashboard') }}"
+                class="sidebar-nav-item"
+                data-section="allocations"
+            >
+                <span class="nav-icon">
+                    <i class="fa-solid fa-bed"></i>
+                </span>
+
+                <span>Room Allocation</span>
+            </a>
+
+
+            <a
+                href="{{ url_for('admin_fees.fee_dashboard') }}"
+                class="sidebar-nav-item"
+                data-section="fees"
+            >
+                <span class="nav-icon">
+                    <i class="fa-solid fa-wallet"></i>
+                </span>
+
+                <span>Fees & Payments</span>
+            </a>
+
+
+            <a
+                href="{{ url_for('admin_complaints.complaint_dashboard') }}"
+                class="sidebar-nav-item"
+                data-section="complaints"
+            >
+                <span class="nav-icon">
+                    <i class="fa-solid fa-headset"></i>
+                </span>
+
+                <span>Complaints</span>
+
+            </a>
+
+
+            <div class="sidebar-nav-label">
+                HOSTEL OPERATIONS
+            </div>
+
+
+            <a
+                href="#"
+                class="sidebar-nav-item"
+                data-section="attendance"
+            >
+                <span class="nav-icon">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </span>
+
+                <span>Attendance</span>
+            </a>
+
+
+            <a
+                href="#"
+                class="sidebar-nav-item"
+                data-section="leave"
+            >
+                <span class="nav-icon">
+                    <i class="fa-solid fa-calendar-days"></i>
+                </span>
+
+                <span>Leave Requests</span>
+            </a>
+
+
+            <a
+                href="#"
+                class="sidebar-nav-item"
+                data-section="visitors"
+            >
+                <span class="nav-icon">
+                    <i class="fa-solid fa-users"></i>
+                </span>
+
+                <span>Visitors</span>
+            </a>
+
+
+            <a
+                href="#"
+                class="sidebar-nav-item"
+                data-section="mess"
+            >
+                <span class="nav-icon">
+                    <i class="fa-solid fa-utensils"></i>
+                </span>
+
+                <span>Mess Management</span>
+            </a>
+
+
+            <a
+                href="#"
+                class="sidebar-nav-item"
+                data-section="inventory"
+            >
+                <span class="nav-icon">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                </span>
+
+                <span>Inventory</span>
+            </a>
+
+
+            <div class="sidebar-nav-label">
+                COMMUNICATION
+            </div>
+
+
+            <a
+                href="#"
+                class="sidebar-nav-item"
+                data-section="notices"
+            >
+                <span class="nav-icon">
+                    <i class="fa-solid fa-bullhorn"></i>
+                </span>
+
+                <span>Notices</span>
+            </a>
+
+
+            <a
+                href="#"
+                class="sidebar-nav-item"
+                data-section="notifications"
+            >
+                <span class="nav-icon">
+                    <i class="fa-regular fa-bell"></i>
+                </span>
+
+                <span>Notifications</span>
+            </a>
+
+
+            <div class="sidebar-nav-label">
+                ADMINISTRATION
+            </div>
+
+
+            <a
+                href="#"
+                class="sidebar-nav-item"
+                data-section="reports"
+            >
+                <span class="nav-icon">
+                    <i class="fa-solid fa-chart-column"></i>
+                </span>
+
+                <span>Reports & Analytics</span>
+            </a>
+
+
+            <a
+                href="#"
+                class="sidebar-nav-item"
+                data-section="activity"
+            >
+                <span class="nav-icon">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </span>
+
+                <span>Activity Logs</span>
+            </a>
+
+
+            <a
+                href="#"
+                class="sidebar-nav-item"
+                data-section="settings"
+            >
+                <span class="nav-icon">
+                    <i class="fa-solid fa-gear"></i>
+                </span>
+
+                <span>Settings</span>
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <form
+                method="POST"
+                action="{{ url_for('auth.logout') }}"
+                class="logout-form"
+            >
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token }}"
+                >
+
+                <button
+                    type="submit"
+                    class="sidebar-logout"
+                >
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span>Logout</span>
+                </button>
+
+            </form>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MOBILE OVERLAY
+         ===================================================== -->
+
+    <div
+        class="sidebar-overlay"
+        id="adminSidebarOverlay"
+        onclick="closeAdminSidebar()"
+    ></div>
+
+
+        <!-- TOPBAR -->
+
+        <header class="dashboard-topbar">
+
+            <div class="topbar-left">
+
+                <button
+                    type="button"
+                    class="mobile-menu-button"
+                    onclick="openAdminSidebar()"
+                    aria-label="Open menu"
+                >
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+
+                <div class="topbar-heading">
+
+                    <span class="topbar-label">
+                        ADMINISTRATOR PORTAL
+                    </span>
+
+                    <h1>
+                        Welcome, Admin 👋
+                    </h1>
+
+                    <p>
+                        Monitor and manage HostelNexus operations.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="topbar-actions">
+
+                <button
+                    type="button"
+                    class="topbar-icon-button"
+                    onclick="showToast('Global search will be available soon.', 'info')"
+                    aria-label="Search"
+                >
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+
+
+                <button
+                    type="button"
+                    class="topbar-icon-button notification-button"
+                    onclick="showToast('Admin notifications will appear here.', 'info')"
+                    aria-label="Notifications"
+                >
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="notification-dot"></span>
+                </button>
+
+
+                <div class="topbar-user">
+
+                    <div class="topbar-avatar">
+                        {{
+                            (
+                                admin_username[0]
+                                if admin_username
+                                else 'A'
+                            )|upper
+                        }}
+                    </div>
+
+                    <div class="topbar-user-info">
+
+                        <strong>
+                            {{ admin_username or "Administrator" }}
+                        </strong>
+
+                        <span>
+                            Administrator
+                        </span>
+
+                    </div>
+
+                    <i class="fa-solid fa-chevron-down topbar-user-arrow"></i>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- CONTENT -->
+
+        <div class="dashboard-content">
+
+
+            <!-- WELCOME -->
+
+            <section class="welcome-banner">
+
+                <div class="welcome-content">
+
+                    <div class="admin-badge">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        HOSTELNEXUS ADMIN CONTROL CENTER
+                    </div>
+
+                    <h2>
+                        Hostel operations,
+                        <span>under control.</span>
+                    </h2>
+
+                    <p>
+                        Manage students, rooms, allocations, fees,
+                        complaints, notices and every major hostel
+                        operation from one centralized dashboard.
+                    </p>
+
+                    <button
+                        type="button"
+                        class="welcome-ai-button"
+                        onclick="showToast('AI Admin Assistant will be connected here.', 'info')"
+                    >
+                        <i class="fa-solid fa-robot"></i>
+                        Open AI Assistant
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+
+                </div>
+
+
+                <div class="welcome-visual">
+
+                    <div class="welcome-orbit orbit-one"></div>
+                    <div class="welcome-orbit orbit-two"></div>
+
+                    <div class="welcome-visual-icon">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+
+                    <div class="floating-card floating-card-one">
+                        <i class="fa-solid fa-users"></i>
+                        <span>Students</span>
+                    </div>
+
+                    <div class="floating-card floating-card-two">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- QUICK STATS -->
+
+            <section class="dashboard-stats">
+
+                <div class="stat-card">
+
+                    <div class="stat-card-top">
+
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-user-graduate"></i>
+                        </div>
+
+                        <span class="stat-status">
+                            <span></span>
+                            Active
+                        </span>
+
+                    </div>
+
+                    <div class="stat-value">
+                        0
+                    </div>
+
+                    <div class="stat-label">
+                        Total Students
+                    </div>
+
+                    <div class="stat-footer">
+                        <span>Registered students</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-card-top">
+
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-building"></i>
+                        </div>
+
+                        <span class="stat-status">
+                            <span></span>
+                            Active
+                        </span>
+
+                    </div>
+
+                    <div class="stat-value">
+                        0
+                    </div>
+
+                    <div class="stat-label">
+                        Hostel Rooms
+                    </div>
+
+                    <div class="stat-footer">
+                        <span>Total rooms</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-card-top">
+
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-bed"></i>
+                        </div>
+
+                        <span class="stat-status success">
+                            —
+                        </span>
+
+                    </div>
+
+                    <div class="stat-value">
+                        0
+                    </div>
+
+                    <div class="stat-label">
+                        Allocated Beds
+                    </div>
+
+                    <div class="stat-footer">
+                        <span>Current allocations</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-card-top">
+
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-indian-rupee-sign"></i>
+                        </div>
+
+                        <span class="stat-status warning">
+                            —
+                        </span>
+
+                    </div>
+
+                    <div class="stat-value">
+                        ₹ —
+                    </div>
+
+                    <div class="stat-label">
+                        Pending Fees
+                    </div>
+
+                    <div class="stat-footer">
+                        <span>Outstanding amount</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- MANAGEMENT MODULES -->
+
+            <section class="admin-management-grid">
+
+                <div
+                    class="admin-module-card"
+                    onclick="showAdminModule('Student Management')"
+                >
+                    <div class="admin-module-icon">
+                        <i class="fa-solid fa-user-graduate"></i>
+                    </div>
+
+                    <h4>Student Management</h4>
+
+                    <p>
+                        Approve, manage and search students by USN.
+                    </p>
+
+                    <i class="fa-solid fa-arrow-up-right-from-square admin-module-arrow"></i>
+                </div>
+
+
+                <div
+                    class="admin-module-card"
+                    onclick="showAdminModule('Room & Block Management')"
+                >
+                    <div class="admin-module-icon">
+                        <i class="fa-solid fa-building"></i>
+                    </div>
+
+                    <h4>Rooms & Blocks</h4>
+
+                    <p>
+                        Create hostel blocks, rooms and capacities.
+                    </p>
+
+                    <i class="fa-solid fa-arrow-up-right-from-square admin-module-arrow"></i>
+                </div>
+
+
+                <div
+                    class="admin-module-card"
+                    onclick="showAdminModule('Room Allocation')"
+                >
+                    <div class="admin-module-icon">
+                        <i class="fa-solid fa-bed"></i>
+                    </div>
+
+                    <h4>Room Allocation</h4>
+
+                    <p>
+                        Allocate beds and manage room occupancy.
+                    </p>
+
+                    <i class="fa-solid fa-arrow-up-right-from-square admin-module-arrow"></i>
+                </div>
+
+
+                <div
+                    class="admin-module-card"
+                    onclick="showAdminModule('Fees & Payments')"
+                >
+                    <div class="admin-module-icon">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+
+                    <h4>Fees & Payments</h4>
+
+                    <p>
+                        Manage payments, balances and receipts.
+                    </p>
+
+                    <i class="fa-solid fa-arrow-up-right-from-square admin-module-arrow"></i>
+                </div>
+
+
+                <div
+                    class="admin-module-card"
+                    onclick="showAdminModule('Complaints')"
+                >
+                    <div class="admin-module-icon">
+                        <i class="fa-solid fa-headset"></i>
+                    </div>
+
+                    <h4>Complaints</h4>
+
+                    <p>
+                        Review AI-classified hostel complaints.
+                    </p>
+
+                    <i class="fa-solid fa-arrow-up-right-from-square admin-module-arrow"></i>
+                </div>
+
+
+                <div
+                    class="admin-module-card"
+                    onclick="showAdminModule('Attendance')"
+                >
+                    <div class="admin-module-icon">
+                        <i class="fa-solid fa-calendar-check"></i>
+                    </div>
+
+                    <h4>Attendance</h4>
+
+                    <p>
+                        Manage hostel attendance records.
+                    </p>
+
+                    <i class="fa-solid fa-arrow-up-right-from-square admin-module-arrow"></i>
+                </div>
+
+
+                <div
+                    class="admin-module-card"
+                    onclick="showAdminModule('Leave Requests')"
+                >
+                    <div class="admin-module-icon">
+                        <i class="fa-solid fa-calendar-days"></i>
+                    </div>
+
+                    <h4>Leave Requests</h4>
+
+                    <p>
+                        Review and process student leave requests.
+                    </p>
+
+                    <i class="fa-solid fa-arrow-up-right-from-square admin-module-arrow"></i>
+                </div>
+
+
+                <div
+                    class="admin-module-card"
+                    onclick="showAdminModule('Inventory')"
+                >
+                    <div class="admin-module-icon">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                    </div>
+
+                    <h4>Inventory</h4>
+
+                    <p>
+                        Track hostel assets and inventory.
+                    </p>
+
+                    <i class="fa-solid fa-arrow-up-right-from-square admin-module-arrow"></i>
+                </div>
+
+            </section>
+
+
+            <!-- LOWER GRID -->
+
+            <section class="dashboard-main-grid">
+
+
+                <!-- PENDING STUDENTS -->
+
+                <div class="admin-pending-card">
+
+                    <div class="admin-pending-header">
+
+                        <div>
+
+                            <span class="card-eyebrow">
+                                REGISTRATION QUEUE
+                            </span>
+
+                            <h3>
+                                Pending Student Approvals
+                            </h3>
+
+                        </div>
+
+                        <div class="pending-count">
+                            0
+                        </div>
+
+                    </div>
+
+
+                    <div class="admin-student-placeholder">
+
+                        <div class="admin-student-placeholder-icon">
+                            <i class="fa-solid fa-user-clock"></i>
+                        </div>
+
+                        <strong>
+                            No pending registrations
+                        </strong>
+
+                        <span>
+                            Newly registered students waiting
+                            for administrator approval will appear here.
+                        </span>
+
+                        <button
+                            type="button"
+                            class="admin-view-students"
+                            onclick="showAdminModule('Student Management')"
+                        >
+                            Manage Students
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SYSTEM STATUS -->
+
+                <div class="admin-system-card">
+
+                    <div class="dashboard-card-header">
+
+                        <div>
+
+                            <span class="card-eyebrow">
+                                SYSTEM MONITOR
+                            </span>
+
+                            <h3>
+                                System Status
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="admin-system-list">
+
+                        <div class="system-status-row">
+
+                            <div class="system-status-name">
+
+                                <i class="fa-solid fa-database"></i>
+
+                                Database
+                            </div>
+
+                            <span class="system-status">
+                                Connected
+                            </span>
+
+                        </div>
+
+
+                        <div class="system-status-row">
+
+                            <div class="system-status-name">
+
+                                <i class="fa-solid fa-lock"></i>
+
+                                Authentication
+                            </div>
+
+                            <span class="system-status">
+                                Secure
+                            </span>
+
+                        </div>
+
+
+                        <div class="system-status-row">
+
+                            <div class="system-status-name">
+
+                                <i class="fa-solid fa-robot"></i>
+
+                                AI Services
+                            </div>
+
+                            <span class="system-status">
+                                Ready
+                            </span>
+
+                        </div>
+
+
+                        <div class="system-status-row">
+
+                            <div class="system-status-name">
+
+                                <i class="fa-solid fa-server"></i>
+
+                                HostelNexus
+                            </div>
+
+                            <span class="system-status">
+                                Online
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- QUICK ADMIN ACTIONS -->
+
+                <div class="dashboard-card">
+
+                    <div class="dashboard-card-header">
+
+                        <div>
+
+                            <span class="card-eyebrow">
+                                ADMIN SHORTCUTS
+                            </span>
+
+                            <h3>
+                                Quick Actions
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="admin-quick-grid">
+
+                        <button
+                            type="button"
+                            class="admin-quick-action"
+                            onclick="showAdminModule('Add Student')"
+                        >
+                            <i class="fa-solid fa-user-plus"></i>
+
+                            <strong>
+                                Add Student
+                            </strong>
+
+                            <span>
+                                Create student record
+                            </span>
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="admin-quick-action"
+                            onclick="showAdminModule('Add Room')"
+                        >
+                            <i class="fa-solid fa-square-plus"></i>
+
+                            <strong>
+                                Add Room
+                            </strong>
+
+                            <span>
+                                Create hostel room
+                            </span>
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="admin-quick-action"
+                            onclick="showAdminModule('Record Payment')"
+                        >
+                            <i class="fa-solid fa-money-bill-transfer"></i>
+
+                            <strong>
+                                Record Payment
+                            </strong>
+
+                            <span>
+                                Add fee payment
+                            </span>
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="admin-quick-action"
+                            onclick="showAdminModule('Publish Notice')"
+                        >
+                            <i class="fa-solid fa-bullhorn"></i>
+
+                            <strong>
+                                Publish Notice
+                            </strong>
+
+                            <span>
+                                Notify students
+                            </span>
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- RECENT ACTIVITY -->
+
+                <div class="dashboard-card">
+
+                    <div class="dashboard-card-header">
+
+                        <div>
+
+                            <span class="card-eyebrow">
+                                AUDIT TRAIL
+                            </span>
+
+                            <h3>
+                                Recent Activity
+                            </h3>
+
+                        </div>
+
+                        <button
+                            type="button"
+                            class="view-all-button"
+                            onclick="showAdminModule('Activity Logs')"
+                        >
+                            View All
+                        </button>
+
+                    </div>
+
+
+                    <div class="empty-dashboard-state">
+
+                        <div class="empty-state-icon">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                        </div>
+
+                        <strong>
+                            No recent activity
+                        </strong>
+
+                        <span>
+                            Administrative actions will appear
+                            here once the system is in use.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- AI BANNER -->
+
+            <section class="ai-dashboard-banner">
+
+                <div class="ai-dashboard-icon">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+
+                <div class="ai-dashboard-content">
+
+                    <span>
+                        HOSTELNEXUS AI INTELLIGENCE
+                    </span>
+
+                    <h3>
+                        Let AI help you manage hostel operations.
+                    </h3>
+
+                    <p>
+                        AI-assisted complaint classification,
+                        student assistance, operational insights
+                        and intelligent hostel workflows.
+                    </p>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="ai-dashboard-button"
+                    onclick="showToast('AI Admin Assistant will be connected here.', 'info')"
+                >
+                    Open Assistant
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+
+            </section>
+
+
+            <!-- FOOTER -->
+
+            <footer class="dashboard-footer">
+
+                <span>
+                    © <span id="adminDashboardYear"></span>
+                    HostelNexus
+                </span>
+
+                <span>
+                    BIET Engineering College • Information Science
+                </span>
+
+                <span>
+                    <i class="fa-solid fa-shield-halved"></i>
+                    Administrator Portal
+                </span>
+
+            </footer>
+
+        </div>
+
+    </main>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+    function openAdminSidebar() {
+
+        const sidebar =
+            document.getElementById("adminSidebar");
+
+        const overlay =
+            document.getElementById("adminSidebarOverlay");
+
+        if (sidebar) {
+            sidebar.classList.add("open");
+        }
+
+        if (overlay) {
+            overlay.classList.add("show");
+        }
+
+        document.body.classList.add("sidebar-open");
+    }
+
+
+    function closeAdminSidebar() {
+
+        const sidebar =
+            document.getElementById("adminSidebar");
+
+        const overlay =
+            document.getElementById("adminSidebarOverlay");
+
+        if (sidebar) {
+            sidebar.classList.remove("open");
+        }
+
+        if (overlay) {
+            overlay.classList.remove("show");
+        }
+
+        document.body.classList.remove("sidebar-open");
+    }
+
+
+    function showAdminModule(moduleName) {
+
+        const moduleRoutes = {
+            "Student Management": "{{ url_for('admin_students.students') }}",
+            "Room & Block Management": "{{ url_for('admin_hostel.hostel_management') }}",
+            "Room Allocation": "{{ url_for('admin_allocation.allocation_dashboard') }}",
+            "Fees & Payments": "{{ url_for('admin_fees.fee_dashboard') }}",
+            "Complaints": "{{ url_for('admin_complaints.complaint_dashboard') }}"
+        };
+
+        if (moduleRoutes[moduleName]) {
+            window.location.href = moduleRoutes[moduleName];
+        }
+
+    }
+
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            const yearElement =
+                document.getElementById(
+                    "adminDashboardYear"
+                );
+
+            if (yearElement) {
+                yearElement.textContent =
+                    new Date().getFullYear();
+            }
+
+
+            const navItems =
+                document.querySelectorAll(
+                    "#adminSidebar .sidebar-nav-item"
+                );
+
+            document.querySelectorAll(
+                "#adminSidebar [data-section='attendance'], " +
+                "#adminSidebar [data-section='leave'], " +
+                "#adminSidebar [data-section='visitors'], " +
+                "#adminSidebar [data-section='mess'], " +
+                "#adminSidebar [data-section='inventory'], " +
+                "#adminSidebar [data-section='notices'], " +
+                "#adminSidebar [data-section='notifications'], " +
+                "#adminSidebar [data-section='reports'], " +
+                "#adminSidebar [data-section='activity'], " +
+                "#adminSidebar [data-section='settings']"
+            ).forEach(function (item) {
+                item.remove();
+            });
+
+            document.querySelectorAll(
+                "#adminSidebar .sidebar-nav-label"
+            ).forEach(function (label) {
+                if (label.textContent.trim() !== "MAIN MENU") {
+                    label.remove();
+                }
+            });
+
+
+            navItems.forEach(function (item) {
+
+                item.addEventListener(
+                    "click",
+                    function (event) {
+
+                        navItems.forEach(
+                            function (navItem) {
+                                navItem.classList.remove(
+                                    "active"
+                                );
+                            }
+                        );
+
+                        item.classList.add("active");
+
+                        if (
+                            window.innerWidth <= 900
+                        ) {
+                            closeAdminSidebar();
+                        }
+
+                    }
+                );
+
+            });
+
+
+            document.addEventListener(
+                "keydown",
+                function (event) {
+
+                    if (event.key === "Escape") {
+                        closeAdminSidebar();
+                    }
+
+                }
+            );
+
+
+            window.addEventListener(
+                "resize",
+                function () {
+
+                    if (window.innerWidth > 900) {
+                        closeAdminSidebar();
+                    }
+
+                }
+            );
+
+        }
+    );
+
+</script>
+
+{% endblock %}

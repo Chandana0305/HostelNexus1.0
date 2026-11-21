@@ -1,0 +1,2608 @@
+{% extends "base.html" %}
+
+{% block title %}Room Allocation | HostelNexus{% endblock %}
+
+{% block content %}
+
+<style>
+    .allocation-page {
+        min-height: calc(100vh - 80px);
+        padding: 42px 0 70px;
+        background:
+            radial-gradient(circle at 90% 0%, rgba(91, 75, 255, 0.10), transparent 28%),
+            radial-gradient(circle at 0% 30%, rgba(0, 191, 166, 0.08), transparent 24%),
+            #f7f8fc;
+    }
+
+    .allocation-container {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+    }
+
+    .allocation-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 28px;
+    }
+
+    .allocation-header h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+        line-height: 1.15;
+        color: #15162b;
+    }
+
+    .allocation-header p {
+        margin: 0;
+        color: #72758b;
+        font-size: 14px;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .allocation-btn {
+        border: 0;
+        border-radius: 12px;
+        padding: 12px 18px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.25s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+    }
+
+    .allocation-btn-primary {
+        color: #fff;
+        background: linear-gradient(135deg, #5b4bff, #7c6cff);
+        box-shadow: 0 10px 24px rgba(91, 75, 255, 0.22);
+    }
+
+    .allocation-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 28px rgba(91, 75, 255, 0.28);
+    }
+
+    .allocation-btn-light {
+        background: #fff;
+        color: #35364c;
+        border: 1px solid #e4e5ef;
+    }
+
+    .allocation-btn-light:hover {
+        border-color: #c9c7ff;
+        color: #5b4bff;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .stat-card {
+        background: #fff;
+        border: 1px solid #e9e9f2;
+        border-radius: 18px;
+        padding: 20px;
+        box-shadow: 0 8px 26px rgba(31, 35, 55, 0.05);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::after {
+        content: "";
+        position: absolute;
+        width: 75px;
+        height: 75px;
+        border-radius: 50%;
+        right: -30px;
+        top: -30px;
+        background: rgba(91, 75, 255, 0.07);
+    }
+
+    .stat-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+
+    .stat-label {
+        color: #777a90;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .stat-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f0efff;
+        font-size: 18px;
+    }
+
+    .stat-value {
+        color: #15162b;
+        font-size: 27px;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .main-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.15fr;
+        gap: 22px;
+        align-items: start;
+    }
+
+    .panel {
+        background: #fff;
+        border: 1px solid #e9e9f2;
+        border-radius: 20px;
+        box-shadow: 0 8px 28px rgba(31, 35, 55, 0.05);
+        overflow: hidden;
+    }
+
+    .panel-header {
+        padding: 22px 24px;
+        border-bottom: 1px solid #ececf3;
+    }
+
+    .panel-header h2 {
+        margin: 0 0 5px;
+        color: #17182c;
+        font-size: 18px;
+    }
+
+    .panel-header p {
+        margin: 0;
+        color: #85879b;
+        font-size: 12px;
+    }
+
+    .panel-body {
+        padding: 24px;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 7px;
+        color: #34354b;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .required {
+        color: #ef5350;
+    }
+
+    .form-control {
+        width: 100%;
+        min-height: 46px;
+        padding: 0 13px;
+        border: 1px solid #dddfea;
+        border-radius: 11px;
+        background: #fff;
+        color: #27283b;
+        font-size: 13px;
+        outline: none;
+        transition: 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        border-color: #7668ff;
+        box-shadow: 0 0 0 4px rgba(91, 75, 255, 0.09);
+    }
+
+    .form-control:disabled {
+        background: #f5f5f8;
+        cursor: not-allowed;
+        color: #9294a5;
+    }
+
+    .student-preview {
+        display: none;
+        margin-top: 10px;
+        padding: 13px;
+        border-radius: 13px;
+        border: 1px solid #e5e4ff;
+        background: #f8f7ff;
+    }
+
+    .student-preview.show {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .student-avatar {
+        width: 42px;
+        height: 42px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        object-fit: cover;
+        background: linear-gradient(135deg, #5b4bff, #00bfa6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 800;
+        font-size: 14px;
+    }
+
+    .student-preview strong {
+        display: block;
+        color: #25263b;
+        font-size: 13px;
+        margin-bottom: 3px;
+    }
+
+    .student-preview span {
+        color: #77798c;
+        font-size: 11px;
+    }
+
+    .bed-section {
+        display: none;
+        margin-top: 8px;
+    }
+
+    .bed-section.show {
+        display: block;
+        animation: allocationFade 0.25s ease;
+    }
+
+    @keyframes allocationFade {
+        from {
+            opacity: 0;
+            transform: translateY(5px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .room-info {
+        display: none;
+        margin: 15px 0 18px;
+        padding: 15px;
+        border-radius: 14px;
+        background: #f7f7fc;
+        border: 1px solid #ececf4;
+    }
+
+    .room-info.show {
+        display: block;
+    }
+
+    .room-info-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .room-info-title {
+        color: #202137;
+        font-weight: 800;
+        font-size: 15px;
+    }
+
+    .room-status {
+        font-size: 10px;
+        padding: 5px 9px;
+        border-radius: 20px;
+        background: #e8fff8;
+        color: #008d76;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .room-info-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .room-info-item {
+        padding: 10px;
+        border-radius: 10px;
+        background: #fff;
+        border: 1px solid #ececf3;
+        text-align: center;
+    }
+
+    .room-info-item strong {
+        display: block;
+        color: #26273b;
+        font-size: 15px;
+    }
+
+    .room-info-item span {
+        display: block;
+        color: #8a8c9d;
+        font-size: 10px;
+        margin-top: 3px;
+    }
+
+    .beds-label {
+        margin-bottom: 9px;
+        color: #34354b;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .beds-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 9px;
+    }
+
+    .bed-option {
+        position: relative;
+    }
+
+    .bed-option input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .bed-card {
+        min-height: 66px;
+        border: 1px solid #dddfea;
+        border-radius: 12px;
+        background: #fff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+
+    .bed-card strong {
+        color: #36374b;
+        font-size: 13px;
+    }
+
+    .bed-card span {
+        color: #888a9c;
+        font-size: 9px;
+        margin-top: 3px;
+    }
+
+    .bed-card:hover {
+        border-color: #8176ff;
+        transform: translateY(-2px);
+    }
+
+    .bed-option input:checked + .bed-card {
+        color: #fff;
+        background: linear-gradient(135deg, #5b4bff, #7668ff);
+        border-color: #5b4bff;
+        box-shadow: 0 7px 17px rgba(91, 75, 255, 0.22);
+    }
+
+    .bed-option input:checked + .bed-card strong,
+    .bed-option input:checked + .bed-card span {
+        color: #fff;
+    }
+
+    .bed-card.occupied {
+        background: #f5f5f7;
+        border-color: #e5e5ea;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .bed-card.occupied strong {
+        color: #858797;
+    }
+
+    .allocate-button {
+        width: 100%;
+        margin-top: 8px;
+        min-height: 48px;
+    }
+
+    .allocation-note {
+        margin-top: 13px;
+        padding: 11px 13px;
+        border-radius: 10px;
+        background: #f5f8ff;
+        color: #6c7087;
+        font-size: 11px;
+        line-height: 1.6;
+    }
+
+    .allocation-table-wrap {
+        overflow-x: auto;
+    }
+
+    .allocation-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 620px;
+    }
+
+    .allocation-table th {
+        padding: 13px 15px;
+        text-align: left;
+        background: #fafaff;
+        color: #77798d;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid #ececf3;
+    }
+
+    .allocation-table td {
+        padding: 14px 15px;
+        color: #393a4d;
+        font-size: 12px;
+        border-bottom: 1px solid #f0f0f5;
+        vertical-align: middle;
+    }
+
+    .allocation-table tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .student-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .table-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: linear-gradient(135deg, #5b4bff, #00bfa6);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 800;
+        flex-shrink: 0;
+    }
+
+    .student-cell strong {
+        display: block;
+        color: #25263a;
+        font-size: 12px;
+    }
+
+    .student-cell span {
+        color: #8b8d9e;
+        font-size: 10px;
+    }
+
+    .bed-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 28px;
+        height: 25px;
+        padding: 0 7px;
+        border-radius: 8px;
+        background: #f0efff;
+        color: #5b4bff;
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    .room-badge {
+        color: #27283b;
+        font-weight: 800;
+    }
+
+    .vacate-btn {
+        border: 1px solid #ffd7d7;
+        background: #fff5f5;
+        color: #dc4d4d;
+        border-radius: 8px;
+        padding: 7px 10px;
+        font-size: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+
+    .vacate-btn:hover {
+        background: #ffe8e8;
+    }
+
+    .empty-state {
+        padding: 48px 20px;
+        text-align: center;
+        color: #838597;
+    }
+
+    .empty-icon {
+        width: 58px;
+        height: 58px;
+        margin: 0 auto 13px;
+        border-radius: 17px;
+        background: #f1f1f8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 25px;
+    }
+
+    .empty-state strong {
+        display: block;
+        color: #35364b;
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+
+    .empty-state span {
+        font-size: 11px;
+    }
+
+    .filter-row {
+        display: flex;
+        gap: 10px;
+        padding: 16px 20px;
+        border-bottom: 1px solid #ececf3;
+        background: #fcfcfe;
+    }
+
+    .filter-row .form-control {
+        max-width: 220px;
+        min-height: 40px;
+    }
+
+    .allocation-count {
+        margin-left: auto;
+        align-self: center;
+        color: #85879a;
+        font-size: 11px;
+    }
+
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(18, 19, 35, 0.58);
+        backdrop-filter: blur(7px);
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .modal-overlay.show {
+        display: flex;
+    }
+
+    .confirm-modal {
+        width: min(430px, 100%);
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        animation: modalIn 0.22s ease;
+    }
+
+    @keyframes modalIn {
+        from {
+            opacity: 0;
+            transform: translateY(12px) scale(0.98);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .modal-top {
+        padding: 21px 22px;
+        border-bottom: 1px solid #ededf3;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .modal-top h3 {
+        margin: 0;
+        color: #1c1d31;
+        font-size: 17px;
+    }
+
+    .modal-close {
+        width: 32px;
+        height: 32px;
+        border: 0;
+        border-radius: 9px;
+        background: #f2f2f7;
+        cursor: pointer;
+        color: #77798a;
+    }
+
+    .modal-content {
+        padding: 22px;
+        color: #676a7e;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .modal-actions {
+        padding: 15px 22px 21px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 9px;
+    }
+
+    .danger-btn {
+        border: 0;
+        border-radius: 10px;
+        padding: 10px 16px;
+        background: #e65353;
+        color: #fff;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .toast-message {
+        position: fixed;
+        right: 22px;
+        bottom: 22px;
+        z-index: 10000;
+        max-width: 350px;
+        padding: 13px 17px;
+        border-radius: 12px;
+        color: #fff;
+        background: #242538;
+        box-shadow: 0 14px 35px rgba(0, 0, 0, 0.18);
+        font-size: 12px;
+        transform: translateY(20px);
+        opacity: 0;
+        pointer-events: none;
+        transition: 0.25s ease;
+    }
+
+    .toast-message.show {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    .toast-message.success {
+        background: #128d76;
+    }
+
+    .toast-message.error {
+        background: #d94e4e;
+    }
+
+    @media (max-width: 1000px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .main-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 650px) {
+        .allocation-header {
+            flex-direction: column;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .panel-body {
+            padding: 18px;
+        }
+
+        .beds-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .room-info-grid {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .filter-row {
+            flex-wrap: wrap;
+        }
+
+        .allocation-count {
+            width: 100%;
+            margin-left: 0;
+        }
+    }
+
+    @media (max-width: 450px) {
+        .allocation-container {
+            width: min(100% - 22px, 1180px);
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .allocation-header h1 {
+            font-size: 26px;
+        }
+    }
+</style>
+
+
+<div class="allocation-page">
+
+    <div class="allocation-container">
+
+        <!-- HEADER -->
+        <div class="allocation-header">
+
+            <div>
+                <h1>Room Allocation</h1>
+                <p>
+                    Assign approved students to hostel rooms and beds.
+                </p>
+            </div>
+
+            <div class="header-actions">
+
+                <button
+                    type="button"
+                    class="allocation-btn allocation-btn-light"
+                    onclick="refreshAllocationPage()"
+                >
+                    ↻ Refresh
+                </button>
+
+                <a
+                    href="{{ url_for('admin_hostel.hostel_management') }}"
+                    class="allocation-btn allocation-btn-primary"
+                >
+                    ← Hostel Management
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- STATISTICS -->
+        <div class="stats-grid">
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+                    <span class="stat-label">Total Rooms</span>
+                    <span class="stat-icon">🏢</span>
+                </div>
+
+                <div class="stat-value">
+                    {{ statistics.total_rooms or 0 }}
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+                    <span class="stat-label">Total Beds</span>
+                    <span class="stat-icon">🛏️</span>
+                </div>
+
+                <div class="stat-value">
+                    {{ statistics.total_capacity or 0 }}
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+                    <span class="stat-label">Occupied Beds</span>
+                    <span class="stat-icon">👤</span>
+                </div>
+
+                <div class="stat-value">
+                    {{ statistics.occupied_beds or 0 }}
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+                    <span class="stat-label">Available Beds</span>
+                    <span class="stat-icon">✨</span>
+                </div>
+
+                <div class="stat-value">
+                    {{ statistics.available_beds or 0 }}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- MAIN CONTENT -->
+        <div class="main-grid">
+
+
+            <!-- ALLOCATION FORM -->
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <h2>Allocate Student</h2>
+
+                    <p>
+                        Select an approved student, room and available bed.
+                    </p>
+
+                </div>
+
+
+                <div class="panel-body">
+
+                    <form
+                        id="allocationForm"
+                        onsubmit="submitAllocation(event)"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token }}"
+                        >
+
+
+                        <!-- STUDENT -->
+                        <div class="form-group">
+
+                            <label class="form-label">
+                                Student <span class="required">*</span>
+                            </label>
+
+                            <select
+                                id="student_id"
+                                name="student_id"
+                                class="form-control"
+                                onchange="handleStudentChange()"
+                                required
+                            >
+
+                                <option value="">
+                                    Select approved student
+                                </option>
+
+                                {% for student in students %}
+
+                                    <option
+                                        value="{{ student.id }}"
+                                        data-name="{{ student.first_name }} {{ student.last_name }}"
+                                        data-usn="{{ student.student_id }}"
+                                        data-department="{{ student.department or '' }}"
+                                        data-batch="{{ student.batch or '' }}"
+                                        data-photo="{{ student.profile_photo or '' }}"
+                                    >
+                                        {{ student.student_id }}
+                                        —
+                                        {{ student.first_name }}
+                                        {{ student.last_name }}
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+
+                            <div
+                                id="studentPreview"
+                                class="student-preview"
+                            >
+
+                                <div
+                                    id="studentAvatar"
+                                    class="student-avatar"
+                                >
+                                </div>
+
+                                <div>
+
+                                    <strong id="previewStudentName">
+                                        Student
+                                    </strong>
+
+                                    <span id="previewStudentMeta">
+                                        Student information
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            {% if not students %}
+
+                                <div class="allocation-note">
+                                    No approved students are currently
+                                    available for room allocation.
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- BLOCK -->
+                        <div class="form-group">
+
+                            <label class="form-label">
+                                Hostel Block
+                                <span class="required">*</span>
+                            </label>
+
+                            <button
+                                type="button"
+                                class="allocation-btn allocation-btn-light"
+                                style="float:right; padding:5px 9px; font-size:11px;"
+                                onclick="window.location.href='{{ url_for('admin_hostel.hostel_management') }}?open=block'"
+                            >
+                                + Manage Blocks
+                            </button>
+
+                            <select
+                                id="block_id"
+                                class="form-control"
+                                onchange="loadRooms()"
+                                required
+                            >
+
+                                <option value="">
+                                    Select hostel block
+                                </option>
+
+                                {% for block in blocks %}
+
+                                    <option value="{{ block.id }}">
+                                        {{ block.block_name }}
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- ROOM -->
+                        <div class="form-group">
+
+                            <label class="form-label">
+                                Room
+                                <span class="required">*</span>
+                            </label>
+
+                            <button
+                                type="button"
+                                class="allocation-btn allocation-btn-light"
+                                style="float:right; padding:5px 9px; font-size:11px;"
+                                onclick="window.location.href='{{ url_for('admin_hostel.hostel_management') }}?open=room'"
+                            >
+                                + Manage Rooms
+                            </button>
+
+                            <select
+                                id="room_id"
+                                name="room_id"
+                                class="form-control"
+                                onchange="loadBeds()"
+                                disabled
+                                required
+                            >
+
+                                <option value="">
+                                    Select hostel block first
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- ROOM INFO -->
+                        <div
+                            id="roomInfo"
+                            class="room-info"
+                        >
+
+                            <div class="room-info-top">
+
+                                <div
+                                    id="roomInfoTitle"
+                                    class="room-info-title"
+                                >
+                                    Room
+                                </div>
+
+                                <span
+                                    id="roomStatus"
+                                    class="room-status"
+                                >
+                                    Available
+                                </span>
+
+                            </div>
+
+
+                            <div class="room-info-grid">
+
+                                <div class="room-info-item">
+
+                                    <strong id="roomCapacity">
+                                        0
+                                    </strong>
+
+                                    <span>Capacity</span>
+
+                                </div>
+
+
+                                <div class="room-info-item">
+
+                                    <strong id="roomOccupied">
+                                        0
+                                    </strong>
+
+                                    <span>Occupied</span>
+
+                                </div>
+
+
+                                <div class="room-info-item">
+
+                                    <strong id="roomAvailable">
+                                        0
+                                    </strong>
+
+                                    <span>Available</span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- BEDS -->
+                        <div
+                            id="bedSection"
+                            class="bed-section"
+                        >
+
+                            <div class="beds-label">
+                                Select Available Bed
+                            </div>
+
+                            <div
+                                id="bedsGrid"
+                                class="beds-grid"
+                            >
+                            </div>
+
+                        </div>
+
+
+                        <!-- DATE -->
+                        <div class="form-group">
+
+                            <label class="form-label">
+                                Allocation Date
+                                <span class="required">*</span>
+                            </label>
+
+                            <input
+                                type="date"
+                                id="allocation_date"
+                                name="allocation_date"
+                                class="form-control"
+                                value="{{ current_date if current_date else '' }}"
+                                required
+                            >
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            id="allocateButton"
+                            class="allocation-btn allocation-btn-primary allocate-button"
+                            {% if not students %}disabled{% endif %}
+                        >
+                            ✓ Allocate Student
+                        </button>
+
+
+                        <div class="allocation-note">
+                            Once allocated, the student's room and bed
+                            become occupied automatically. The student
+                            will appear under the selected room.
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+
+            <!-- CURRENT ALLOCATIONS -->
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <h2>Current Allocations</h2>
+
+                    <p>
+                        Students currently assigned to hostel rooms.
+                    </p>
+
+                </div>
+
+
+                <div class="filter-row">
+
+                    <select
+                        id="allocationBlockFilter"
+                        class="form-control"
+                        onchange="filterAllocations()"
+                    >
+
+                        <option value="">
+                            All Blocks
+                        </option>
+
+                        {% for block in blocks %}
+
+                            <option value="{{ block.block_name }}">
+                                {{ block.block_name }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+
+                    <select
+                        id="allocationRoomFilter"
+                        class="form-control"
+                        onchange="filterAllocations()"
+                    >
+
+                        <option value="">
+                            All Rooms
+                        </option>
+
+                        {% for room in rooms %}
+
+                            <option value="{{ room.room_number }}">
+                                {{ room.room_number }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+
+                    <span
+                        id="allocationCount"
+                        class="allocation-count"
+                    >
+                        {{ allocations|length }} allocation{% if allocations|length != 1 %}s{% endif %}
+                    </span>
+
+                </div>
+
+
+                <div class="allocation-table-wrap">
+
+                    {% if allocations %}
+
+                        <table class="allocation-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Student</th>
+                                    <th>Room</th>
+                                    <th>Bed</th>
+                                    <th>Block</th>
+                                    <th>Action</th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="allocationTableBody">
+
+                                {% for allocation in allocations %}
+
+                                    <tr
+                                        data-block="{{ allocation.block_name }}"
+                                        data-room="{{ allocation.room_number }}"
+                                    >
+
+                                        <td>
+
+                                            <div class="student-cell">
+
+                                                {% if allocation.profile_photo %}
+
+                                                    <img
+                                                        class="table-avatar"
+                                                        src="{{ url_for('static', filename=allocation.profile_photo) }}"
+                                                        alt="Student"
+                                                    >
+
+                                                {% else %}
+
+                                                    <div class="table-avatar">
+
+                                                        {{ (
+                                                            allocation.first_name[0]
+                                                            ~
+                                                            (allocation.last_name[0] if allocation.last_name else '')
+                                                        )|upper }}
+
+                                                    </div>
+
+                                                {% endif %}
+
+
+                                                <div>
+
+                                                    <strong>
+                                                        {{ allocation.first_name }}
+                                                        {{ allocation.last_name or '' }}
+                                                    </strong>
+
+                                                    <span>
+                                                        {{ allocation.usn }}
+                                                    </span>
+
+                                                </div>
+
+                                            </div>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <span class="room-badge">
+                                                {{ allocation.room_number }}
+                                            </span>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <span class="bed-badge">
+                                                Bed {{ allocation.bed_number }}
+                                            </span>
+
+                                        </td>
+
+
+                                        <td>
+                                            {{ allocation.block_name }}
+                                        </td>
+
+
+                                        <td>
+
+                                            <button
+                                                type="button"
+                                                class="vacate-btn"
+                                                onclick="confirmVacate(
+                                                    {{ allocation.id }},
+                                                    '{{ allocation.first_name|e }} {{ allocation.last_name|e }}',
+                                                    '{{ allocation.room_number|e }}',
+                                                    '{{ allocation.bed_number|e }}'
+                                                )"
+                                            >
+                                                Vacate
+                                            </button>
+
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    {% else %}
+
+                        <div
+                            id="allocationEmptyState"
+                            class="empty-state"
+                        >
+
+                            <div class="empty-icon">
+                                🛏️
+                            </div>
+
+                            <strong>
+                                No Students Allocated Yet
+                            </strong>
+
+                            <span>
+                                Allocated students will appear here.
+                            </span>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- VACATE MODAL -->
+
+<div
+    id="vacateModal"
+    class="modal-overlay"
+>
+
+    <div class="confirm-modal">
+
+        <div class="modal-top">
+
+            <h3>Vacate Student</h3>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeVacateModal()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="modal-content">
+
+            <p id="vacateMessage">
+                Are you sure you want to vacate this student?
+            </p>
+
+
+            <div class="form-group">
+
+                <label class="form-label">
+                    Vacated Date
+                </label>
+
+                <input
+                    type="date"
+                    id="vacated_date"
+                    class="form-control"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                class="allocation-btn allocation-btn-light"
+                onclick="closeVacateModal()"
+            >
+                Cancel
+            </button>
+
+            <button
+                type="button"
+                id="confirmVacateButton"
+                class="danger-btn"
+                onclick="executeVacate()"
+            >
+                Vacate Student
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div
+    id="allocationToast"
+    class="toast-message"
+></div>
+
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+    const CSRF_TOKEN = "{{ csrf_token }}";
+
+    let selectedAllocationId = null;
+
+
+    function profilePhotoUrl(photoPath) {
+
+        const path = String(photoPath || "")
+            .replace(/^\/+/, "");
+
+        return "/static/" + path
+            .split("/")
+            .map(encodeURIComponent)
+            .join("/");
+    }
+
+
+    // ============================================================
+    // INITIALIZATION
+    // ============================================================
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const dateInput = document.getElementById(
+            "allocation_date"
+        );
+
+        if (dateInput && !dateInput.value) {
+
+            const today = new Date();
+
+            const year = today.getFullYear();
+
+            const month = String(
+                today.getMonth() + 1
+            ).padStart(2, "0");
+
+            const day = String(
+                today.getDate()
+            ).padStart(2, "0");
+
+            dateInput.value =
+                `${year}-${month}-${day}`;
+        }
+
+
+        const vacatedDate =
+            document.getElementById(
+                "vacated_date"
+            );
+
+        if (vacatedDate) {
+
+            const today = new Date();
+
+            const year = today.getFullYear();
+
+            const month = String(
+                today.getMonth() + 1
+            ).padStart(2, "0");
+
+            const day = String(
+                today.getDate()
+            ).padStart(2, "0");
+
+            vacatedDate.value =
+                `${year}-${month}-${day}`;
+        }
+
+    });
+
+
+    // ============================================================
+    // STUDENT CHANGE
+    // ============================================================
+
+    function handleStudentChange() {
+
+        const select =
+            document.getElementById(
+                "student_id"
+            );
+
+        const option =
+            select.options[
+                select.selectedIndex
+            ];
+
+        const preview =
+            document.getElementById(
+                "studentPreview"
+            );
+
+
+        if (!select.value) {
+
+            preview.classList.remove("show");
+
+            return;
+        }
+
+
+        const name =
+            option.dataset.name || "Student";
+
+        const usn =
+            option.dataset.usn || "";
+
+        const department =
+            option.dataset.department || "";
+
+        const batch =
+            option.dataset.batch || "";
+
+        const photo =
+            option.dataset.photo || "";
+
+
+        document.getElementById(
+            "previewStudentName"
+        ).textContent = name;
+
+
+        let meta = usn;
+
+        if (department) {
+            meta += " • " + department;
+        }
+
+        if (batch) {
+            meta += " • Batch " + batch;
+        }
+
+
+        document.getElementById(
+            "previewStudentMeta"
+        ).textContent = meta;
+
+
+        const avatar =
+            document.getElementById(
+                "studentAvatar"
+            );
+
+
+        if (photo) {
+
+            avatar.innerHTML = `
+                <img
+                    src="${profilePhotoUrl(photo)}"
+                    alt="Student"
+                    style="
+                        width:100%;
+                        height:100%;
+                        object-fit:cover;
+                        border-radius:50%;
+                    "
+                >
+            `;
+
+        } else {
+
+            const initials =
+                name
+                    .split(" ")
+                    .map(part => part.charAt(0))
+                    .join("")
+                    .substring(0, 2)
+                    .toUpperCase();
+
+            avatar.textContent =
+                initials || "ST";
+        }
+
+
+        preview.classList.add("show");
+    }
+
+
+    function hideRoomInfo() {
+
+        const roomInfo =
+            document.getElementById("roomInfo");
+
+        if (roomInfo) {
+            roomInfo.classList.remove("show");
+        }
+    }
+
+
+    function hideBeds() {
+
+        const bedSection =
+            document.getElementById("bedSection");
+
+        const bedsGrid =
+            document.getElementById("bedsGrid");
+
+        if (bedSection) {
+            bedSection.classList.remove("show");
+        }
+
+        if (bedsGrid) {
+            bedsGrid.innerHTML = "";
+        }
+    }
+
+
+    // ============================================================
+    // LOAD ROOMS
+    // ============================================================
+
+    async function loadRooms() {
+
+        const blockSelect =
+            document.getElementById("block_id");
+
+        const roomSelect =
+            document.getElementById("room_id");
+
+        if (!blockSelect || !roomSelect) {
+            return;
+        }
+
+        const blockId = blockSelect.value;
+
+        roomSelect.innerHTML = `
+            <option value="">
+                Loading rooms...
+            </option>
+        `;
+
+        roomSelect.disabled = true;
+
+        hideRoomInfo();
+        hideBeds();
+
+        if (!blockId) {
+
+            roomSelect.innerHTML = `
+                <option value="">
+                    Select hostel block first
+                </option>
+            `;
+
+            return;
+        }
+
+        try {
+
+            const response = await fetch(
+                `/admin/allocation/rooms/block/${encodeURIComponent(blockId)}`,
+                {
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(
+                    data.message || "Unable to load rooms."
+                );
+            }
+
+            const rooms = data.rooms || [];
+
+            roomSelect.innerHTML = `
+                <option value="">
+                    Select room
+                </option>
+            `;
+
+            if (rooms.length === 0) {
+
+                roomSelect.innerHTML = `
+                    <option value="">
+                        No rooms available in this block
+                    </option>
+                `;
+
+                return;
+            }
+
+            rooms.forEach(room => {
+
+                const option =
+                    document.createElement("option");
+
+                option.value = room.id || room.room_id;
+
+                const availableBeds = parseInt(
+                    room.available_beds || 0,
+                    10
+                );
+
+                option.textContent =
+                    `${room.room_number} — Floor ${room.floor} — ${availableBeds} available`;
+
+                if (availableBeds <= 0) {
+                    option.textContent += " (FULL)";
+                    option.disabled = true;
+                }
+
+                roomSelect.appendChild(option);
+            });
+
+            roomSelect.disabled = false;
+
+        } catch (error) {
+
+            console.error("LOAD ROOMS ERROR:", error);
+
+            roomSelect.innerHTML = `
+                <option value="">
+                    Unable to load rooms
+                </option>
+            `;
+
+            if (typeof showAllocationToast === "function") {
+                showAllocationToast(error.message, "error");
+            }
+        }
+    }
+
+
+    // ============================================================
+    // LOAD BEDS
+    // ============================================================
+
+    async function loadBeds() {
+
+        const roomId =
+            document.getElementById(
+                "room_id"
+            ).value;
+
+
+        hideRoomInfo();
+
+        hideBeds();
+
+
+        if (!roomId) {
+            return;
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `/admin/allocation/room/${roomId}/beds`
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!data.success) {
+
+                throw new Error(
+                    data.message ||
+                    "Unable to load room."
+                );
+            }
+
+
+            const room =
+                data.room;
+
+
+            const beds =
+                data.beds || [];
+
+
+            // ----------------------------------------------------
+            // ROOM INFORMATION
+            // ----------------------------------------------------
+
+            document.getElementById(
+                "roomInfoTitle"
+            ).textContent =
+                `${room.block_name} • Room ${room.room_number}`;
+
+
+            document.getElementById(
+                "roomStatus"
+            ).textContent =
+                room.status || "Available";
+
+
+            document.getElementById(
+                "roomCapacity"
+            ).textContent =
+                room.capacity || 0;
+
+
+            document.getElementById(
+                "roomOccupied"
+            ).textContent =
+                room.occupied_beds || 0;
+
+
+            document.getElementById(
+                "roomAvailable"
+            ).textContent =
+                room.available_beds || 0;
+
+
+            document.getElementById(
+                "roomInfo"
+            ).classList.add("show");
+
+
+            // ----------------------------------------------------
+            // BED GRID
+            // ----------------------------------------------------
+
+            const bedsGrid =
+                document.getElementById(
+                    "bedsGrid"
+                );
+
+
+            bedsGrid.innerHTML = "";
+
+
+            beds.forEach(bed => {
+
+                const wrapper =
+                    document.createElement(
+                        "label"
+                    );
+
+                wrapper.className =
+                    "bed-option";
+
+
+                const input =
+                    document.createElement(
+                        "input"
+                    );
+
+                input.type = "radio";
+
+                input.name =
+                    "bed_number";
+
+                input.value =
+                    bed.bed_number;
+
+                input.disabled =
+                    bed.occupied;
+
+
+                const card =
+                    document.createElement(
+                        "span"
+                    );
+
+                card.className =
+                    "bed-card";
+
+
+                if (bed.occupied) {
+
+                    card.classList.add(
+                        "occupied"
+                    );
+
+                }
+
+
+                const strong =
+                    document.createElement(
+                        "strong"
+                    );
+
+                strong.textContent =
+                    `Bed ${bed.bed_number}`;
+
+
+                const span =
+                    document.createElement(
+                        "span"
+                    );
+
+                span.textContent =
+                    bed.occupied
+                        ? "Occupied"
+                        : "Available";
+
+
+                card.appendChild(
+                    strong
+                );
+
+                card.appendChild(
+                    span
+                );
+
+
+                wrapper.appendChild(
+                    input
+                );
+
+                wrapper.appendChild(
+                    card
+                );
+
+
+                bedsGrid.appendChild(
+                    wrapper
+                );
+
+            });
+
+
+            document.getElementById(
+                "bedSection"
+            ).classList.add("show");
+
+
+            if (
+                beds.length === 0
+                ||
+                beds.every(
+                    bed => bed.occupied
+                )
+            ) {
+
+                bedsGrid.innerHTML = `
+                    <div
+                        style="
+                            grid-column:1/-1;
+                            padding:15px;
+                            border-radius:10px;
+                            background:#fff6f6;
+                            color:#c34d4d;
+                            font-size:11px;
+                        "
+                    >
+                        No beds are currently available in this room.
+                    </div>
+                `;
+            }
+
+        } catch (error) {
+
+            console.error(error);
+
+            showAllocationToast(
+                error.message,
+                "error"
+            );
+
+        }
+
+    }
+
+
+    // ============================================================
+    // SUBMIT ALLOCATION
+    // ============================================================
+
+    async function submitAllocation(event) {
+
+        event.preventDefault();
+
+
+        const form =
+            document.getElementById(
+                "allocationForm"
+            );
+
+        const button =
+            document.getElementById(
+                "allocateButton"
+            );
+
+
+        const studentId =
+            document.getElementById(
+                "student_id"
+            ).value;
+
+        const roomId =
+            document.getElementById(
+                "room_id"
+            ).value;
+
+        const allocationDate =
+            document.getElementById(
+                "allocation_date"
+            ).value;
+
+
+        const selectedBed =
+            document.querySelector(
+                'input[name="bed_number"]:checked'
+            );
+
+
+        if (!studentId) {
+
+            showAllocationToast(
+                "Please select a student.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (!roomId) {
+
+            showAllocationToast(
+                "Please select a room.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (!selectedBed) {
+
+            showAllocationToast(
+                "Please select an available bed.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (!allocationDate) {
+
+            showAllocationToast(
+                "Please select an allocation date.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        const formData =
+            new FormData(form);
+
+
+        formData.set(
+            "bed_number",
+            selectedBed.value
+        );
+
+
+        button.disabled = true;
+
+        button.innerHTML =
+            "⏳ Allocating...";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/admin/allocation/allocate",
+                    {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "X-CSRF-Token":
+                                CSRF_TOKEN
+                        }
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!data.success) {
+
+                throw new Error(
+                    data.message ||
+                    "Unable to allocate student."
+                );
+            }
+
+
+            showAllocationToast(
+                "Student allocated successfully.",
+                "success"
+            );
+
+
+            setTimeout(
+                function () {
+                    window.location.reload();
+                },
+                800
+            );
+
+        } catch (error) {
+
+            console.error(error);
+
+            showAllocationToast(
+                error.message,
+                "error"
+            );
+
+
+            button.disabled = false;
+
+            button.innerHTML =
+                "✓ Allocate Student";
+        }
+
+    }
+
+
+    // ============================================================
+    // VACATE
+    // ============================================================
+
+    function confirmVacate(
+        allocationId,
+        studentName,
+        roomNumber,
+        bedNumber
+    ) {
+
+        selectedAllocationId =
+            allocationId;
+
+
+        document.getElementById(
+            "vacateMessage"
+        ).innerHTML = `
+            Are you sure you want to vacate
+            <strong>${escapeHtml(studentName)}</strong>
+            from Room
+            <strong>${escapeHtml(roomNumber)}</strong>,
+            Bed
+            <strong>${escapeHtml(bedNumber)}</strong>?
+        `;
+
+
+        const modal =
+            document.getElementById(
+                "vacateModal"
+            );
+
+
+        modal.classList.add("show");
+
+
+        document.body.style.overflow =
+            "hidden";
+    }
+
+
+    function closeVacateModal() {
+
+        selectedAllocationId =
+            null;
+
+
+        document.getElementById(
+            "vacateModal"
+        ).classList.remove("show");
+
+
+        document.body.style.overflow =
+            "";
+    }
+
+
+    async function executeVacate() {
+
+        if (!selectedAllocationId) {
+            return;
+        }
+
+
+        const date =
+            document.getElementById(
+                "vacated_date"
+            ).value;
+
+
+        if (!date) {
+
+            showAllocationToast(
+                "Please select the vacated date.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        const button =
+            document.getElementById(
+                "confirmVacateButton"
+            );
+
+
+        button.disabled = true;
+
+        button.textContent =
+            "Vacating...";
+
+
+        const formData =
+            new FormData();
+
+        formData.append(
+            "csrf_token",
+            CSRF_TOKEN
+        );
+
+        formData.append(
+            "vacated_date",
+            date
+        );
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `/admin/allocation/${selectedAllocationId}/vacate`,
+                    {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "X-CSRF-Token":
+                                CSRF_TOKEN
+                        }
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!data.success) {
+
+                throw new Error(
+                    data.message ||
+                    "Unable to vacate student."
+                );
+            }
+
+
+            closeVacateModal();
+
+
+            showAllocationToast(
+                "Student vacated successfully.",
+                "success"
+            );
+
+
+            setTimeout(
+                function () {
+                    window.location.reload();
+                },
+                700
+            );
+
+        } catch (error) {
+
+            console.error(error);
+
+            showAllocationToast(
+                error.message,
+                "error"
+            );
+
+
+            button.disabled = false;
+
+            button.textContent =
+                "Vacate Student";
+        }
+
+    }
+
+
+    // ============================================================
+    // FILTER ALLOCATIONS
+    // ============================================================
+
+    function filterAllocations() {
+
+        const block =
+            document.getElementById(
+                "allocationBlockFilter"
+            ).value
+                .toLowerCase();
+
+
+        const room =
+            document.getElementById(
+                "allocationRoomFilter"
+            ).value
+                .toLowerCase();
+
+
+        const rows =
+            document.querySelectorAll(
+                "#allocationTableBody tr"
+            );
+
+
+        let visibleCount = 0;
+
+
+        rows.forEach(row => {
+
+            const rowBlock =
+                (
+                    row.dataset.block ||
+                    ""
+                ).toLowerCase();
+
+
+            const rowRoom =
+                (
+                    row.dataset.room ||
+                    ""
+                ).toLowerCase();
+
+
+            const blockMatch =
+                !block ||
+                rowBlock === block;
+
+
+            const roomMatch =
+                !room ||
+                rowRoom === room;
+
+
+            if (
+                blockMatch &&
+                roomMatch
+            ) {
+
+                row.style.display = "";
+
+                visibleCount++;
+
+            } else {
+
+                row.style.display = "none";
+            }
+
+        });
+
+
+        document.getElementById(
+            "allocationCount"
+        ).textContent =
+            `${visibleCount} allocation${visibleCount !== 1 ? "s" : ""}`;
+
+    }
+
+
+    // ============================================================
+    // REFRESH
+    // ============================================================
+
+    function refreshAllocationPage() {
+
+        window.location.reload();
+    }
+
+
+    // ============================================================
+    // TOAST
+    // ============================================================
+
+    let toastTimer = null;
+
+
+    function showAllocationToast(
+        message,
+        type = ""
+    ) {
+
+        const toast =
+            document.getElementById(
+                "allocationToast"
+            );
+
+
+        toast.textContent =
+            message;
+
+
+        toast.className =
+            "toast-message";
+
+
+        if (type) {
+
+            toast.classList.add(
+                type
+            );
+        }
+
+
+        requestAnimationFrame(
+            function () {
+
+                toast.classList.add(
+                    "show"
+                );
+
+            }
+        );
+
+
+        clearTimeout(
+            toastTimer
+        );
+
+
+        toastTimer =
+            setTimeout(
+                function () {
+
+                    toast.classList.remove(
+                        "show"
+                    );
+
+                },
+                3500
+            );
+
+    }
+
+
+    // ============================================================
+    // HTML ESCAPE
+    // ============================================================
+
+    function escapeHtml(value) {
+
+        return String(value || "")
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+            .replace(
+                /</g,
+                "&lt;"
+            )
+            .replace(
+                />/g,
+                "&gt;"
+            )
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+    }
+
+
+    // ============================================================
+    // CLOSE MODAL BY OUTSIDE CLICK
+    // ============================================================
+
+    document
+        .getElementById("vacateModal")
+        .addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target === this
+                ) {
+
+                    closeVacateModal();
+
+                }
+
+            }
+        );
+
+
+    // ============================================================
+    // ESCAPE KEY
+    // ============================================================
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Escape"
+            ) {
+
+                closeVacateModal();
+
+            }
+
+        }
+    );
+
+</script>
+
+{% endblock %}

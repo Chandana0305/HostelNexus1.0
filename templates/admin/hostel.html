@@ -1,0 +1,2556 @@
+{% extends "base.html" %}
+
+{% block title %}Hostel Management | HostelNexus{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hostel-page {
+        min-height: calc(100vh - 80px);
+        padding: 30px 0 60px;
+        background:
+            radial-gradient(circle at 90% 0%, rgba(91, 75, 255, 0.08), transparent 28%),
+            radial-gradient(circle at 0% 80%, rgba(0, 191, 166, 0.07), transparent 28%),
+            #f7f8fc;
+    }
+
+    .hostel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+    }
+
+    .page-heading h1 {
+        margin: 0 0 7px;
+        color: #17172b;
+        font-size: 31px;
+        font-weight: 800;
+    }
+
+    .page-heading p {
+        margin: 0;
+        color: #737389;
+        font-size: 14px;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .hn-btn {
+        border: 0;
+        border-radius: 11px;
+        padding: 11px 17px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.22s ease;
+    }
+
+    .hn-btn-primary {
+        background: linear-gradient(135deg, #5b4bff, #7c6cff);
+        color: #fff;
+        box-shadow: 0 8px 20px rgba(91, 75, 255, 0.20);
+    }
+
+    .hn-btn-primary:hover {
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 12px 25px rgba(91, 75, 255, 0.28);
+    }
+
+    .hn-btn-secondary {
+        background: #fff;
+        color: #4d4d63;
+        border: 1px solid #e4e4ed;
+    }
+
+    .hn-btn-secondary:hover {
+        background: #f8f8fc;
+        transform: translateY(-1px);
+    }
+
+    .hn-btn-danger {
+        background: #fff0f0;
+        color: #d63d3d;
+        border: 1px solid #ffdada;
+    }
+
+    .hn-btn-success {
+        background: #eafaf6;
+        color: #008f79;
+        border: 1px solid #c9f1e8;
+    }
+
+    .hn-btn-small {
+        padding: 8px 11px;
+        font-size: 12px;
+        border-radius: 9px;
+    }
+
+    /* Statistics */
+
+    .hostel-stats {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+
+    .stat-card {
+        background: #fff;
+        border: 1px solid #ececf4;
+        border-radius: 17px;
+        padding: 19px;
+        box-shadow: 0 8px 25px rgba(25, 25, 60, 0.045);
+        transition: all 0.23s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 13px 30px rgba(25, 25, 60, 0.08);
+    }
+
+    .stat-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 13px;
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        background: rgba(91, 75, 255, 0.09);
+    }
+
+    .stat-label {
+        color: #77778b;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .stat-value {
+        color: #1b1b30;
+        font-size: 26px;
+        font-weight: 800;
+    }
+
+    /* Main Sections */
+
+    .management-section {
+        background: #fff;
+        border: 1px solid #ececf4;
+        border-radius: 20px;
+        box-shadow: 0 8px 28px rgba(25, 25, 60, 0.045);
+        margin-bottom: 25px;
+        overflow: hidden;
+    }
+
+    .section-header {
+        padding: 20px 22px;
+        border-bottom: 1px solid #eeeeF5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .section-title-area h2 {
+        margin: 0 0 4px;
+        font-size: 19px;
+        color: #1d1d31;
+        font-weight: 800;
+    }
+
+    .section-title-area p {
+        margin: 0;
+        font-size: 12px;
+        color: #858598;
+    }
+
+    .section-actions {
+        display: flex;
+        gap: 9px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    /* Blocks */
+
+    .blocks-grid {
+        padding: 22px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 17px;
+    }
+
+    .block-card {
+        position: relative;
+        border: 1px solid #e9e9f1;
+        border-radius: 16px;
+        padding: 19px;
+        background: linear-gradient(145deg, #fff, #fafaff);
+        transition: all 0.23s ease;
+    }
+
+    .block-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(91, 75, 255, 0.23);
+        box-shadow: 0 12px 28px rgba(40, 40, 80, 0.07);
+    }
+
+    .block-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: flex-start;
+        margin-bottom: 17px;
+    }
+
+    .block-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(91, 75, 255, 0.10);
+        color: #5b4bff;
+        font-size: 21px;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 9px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: capitalize;
+    }
+
+    .status-active {
+        color: #00866f;
+        background: #e9faf6;
+    }
+
+    .status-inactive {
+        color: #a05a00;
+        background: #fff5e5;
+    }
+
+    .block-name {
+        margin: 0 0 6px;
+        color: #202035;
+        font-size: 17px;
+        font-weight: 800;
+    }
+
+    .block-description {
+        min-height: 36px;
+        margin: 0 0 16px;
+        color: #77778b;
+        font-size: 12px;
+        line-height: 1.55;
+    }
+
+    .block-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 13px;
+        border-top: 1px solid #eeeeF5;
+    }
+
+    .room-count {
+        color: #5d5d73;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .block-actions {
+        display: flex;
+        gap: 6px;
+    }
+
+    .icon-btn {
+        width: 31px;
+        height: 31px;
+        border-radius: 8px;
+        border: 1px solid #e8e8f0;
+        background: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.2s ease;
+    }
+
+    .icon-btn:hover {
+        transform: translateY(-1px);
+        border-color: #cfcfe0;
+        background: #f8f8fc;
+    }
+
+    .icon-btn.delete:hover {
+        color: #d33d3d;
+        border-color: #ffd0d0;
+        background: #fff5f5;
+    }
+
+    /* Rooms */
+
+    .room-toolbar {
+        padding: 17px 22px;
+        background: #fafafe;
+        border-bottom: 1px solid #eeeeF5;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .room-filter {
+        display: flex;
+        gap: 9px;
+        align-items: center;
+    }
+
+    .form-control-small {
+        height: 38px;
+        border: 1px solid #dedee9;
+        border-radius: 9px;
+        background: #fff;
+        color: #38384c;
+        padding: 0 11px;
+        font-size: 12px;
+        outline: none;
+    }
+
+    .form-control-small:focus {
+        border-color: #8e85ff;
+        box-shadow: 0 0 0 3px rgba(91, 75, 255, 0.08);
+    }
+
+    .rooms-grid {
+        padding: 22px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 17px;
+    }
+
+    .room-card {
+        border: 1px solid #e9e9f1;
+        border-radius: 16px;
+        padding: 18px;
+        background: #fff;
+        transition: all 0.23s ease;
+    }
+
+    .room-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(40, 40, 80, 0.07);
+        border-color: rgba(91, 75, 255, 0.22);
+    }
+
+    .room-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .room-number {
+        margin: 0 0 4px;
+        color: #1d1d31;
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+    .room-block {
+        margin: 0;
+        color: #7b7b90;
+        font-size: 11px;
+    }
+
+    .room-status {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 5px 8px;
+        border-radius: 20px;
+    }
+
+    .room-capacity {
+        margin-bottom: 14px;
+    }
+
+    .capacity-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 7px;
+        font-size: 11px;
+        color: #77778b;
+    }
+
+    .capacity-label strong {
+        color: #343448;
+    }
+
+    .progress {
+        width: 100%;
+        height: 7px;
+        background: #ededf4;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        height: 100%;
+        border-radius: 20px;
+        background: linear-gradient(90deg, #5b4bff, #7c6cff);
+        transition: width 0.5s ease;
+    }
+
+    .room-details {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 7px;
+        margin-bottom: 15px;
+    }
+
+    .room-detail {
+        padding: 9px 6px;
+        border-radius: 9px;
+        background: #f8f8fc;
+        text-align: center;
+    }
+
+    .room-detail strong {
+        display: block;
+        color: #303044;
+        font-size: 14px;
+        margin-bottom: 2px;
+    }
+
+    .room-detail span {
+        color: #89899a;
+        font-size: 9px;
+    }
+
+    .room-actions {
+        display: flex;
+        gap: 7px;
+        padding-top: 13px;
+        border-top: 1px solid #eeeeF5;
+    }
+
+    .room-actions .hn-btn {
+        flex: 1;
+    }
+
+    /* Empty state */
+
+    .empty-state {
+        padding: 45px 20px;
+        text-align: center;
+        color: #858598;
+    }
+
+    .empty-icon {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 13px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f1f1f8;
+        font-size: 25px;
+    }
+
+    .empty-state h3 {
+        margin: 0 0 5px;
+        color: #38384c;
+        font-size: 16px;
+    }
+
+    .empty-state p {
+        margin: 0;
+        font-size: 12px;
+    }
+
+    /* Modal */
+
+    .hn-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(17, 17, 35, 0.55);
+        backdrop-filter: blur(5px);
+    }
+
+    .hn-modal.active {
+        display: flex;
+        animation: modalFadeIn 0.2s ease;
+    }
+
+    .hn-modal-box {
+        width: 100%;
+        max-width: 520px;
+        max-height: 90vh;
+        overflow-y: auto;
+        border-radius: 20px;
+        background: #fff;
+        box-shadow: 0 25px 70px rgba(20, 20, 45, 0.22);
+        animation: modalSlideUp 0.25s ease;
+    }
+
+    .hn-modal-header {
+        padding: 19px 21px;
+        border-bottom: 1px solid #eeeeF5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .hn-modal-header h3 {
+        margin: 0;
+        color: #202034;
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+    .modal-close {
+        width: 33px;
+        height: 33px;
+        border: 0;
+        border-radius: 9px;
+        background: #f2f2f7;
+        color: #66667a;
+        cursor: pointer;
+        font-size: 17px;
+    }
+
+    .hn-modal-body {
+        padding: 21px;
+    }
+
+    .hn-modal-footer {
+        padding: 16px 21px;
+        border-top: 1px solid #eeeeF5;
+        display: flex;
+        justify-content: flex-end;
+        gap: 9px;
+    }
+
+    .field-group {
+        margin-bottom: 16px;
+    }
+
+    .field-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .field-group label {
+        display: block;
+        margin-bottom: 7px;
+        color: #444458;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .field-group input,
+    .field-group select,
+    .field-group textarea {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid #dedee9;
+        border-radius: 10px;
+        background: #fff;
+        color: #303044;
+        padding: 11px 12px;
+        font-size: 13px;
+        outline: none;
+        font-family: inherit;
+        transition: all 0.2s ease;
+    }
+
+    .field-group textarea {
+        resize: vertical;
+        min-height: 85px;
+    }
+
+    .field-group input:focus,
+    .field-group select:focus,
+    .field-group textarea:focus {
+        border-color: #8e85ff;
+        box-shadow: 0 0 0 3px rgba(91, 75, 255, 0.08);
+    }
+
+    .field-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 13px;
+    }
+
+    .room-students-list {
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+    }
+
+    .student-room-item {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 11px;
+        border-radius: 11px;
+        background: #f8f8fc;
+        border: 1px solid #eeeeF5;
+    }
+
+    .student-room-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 11px;
+        background: linear-gradient(135deg, #5b4bff, #00bfa6);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 800;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+
+    .student-room-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .student-room-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .student-room-info strong {
+        display: block;
+        color: #303044;
+        font-size: 12px;
+        margin-bottom: 2px;
+    }
+
+    .student-room-info span {
+        display: block;
+        color: #858598;
+        font-size: 10px;
+    }
+
+    .bed-number {
+        padding: 5px 8px;
+        border-radius: 7px;
+        background: #ecebff;
+        color: #5647dd;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    @keyframes modalFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes modalSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(15px) scale(0.98);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @media (max-width: 1200px) {
+        .hostel-stats {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .blocks-grid,
+        .rooms-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 760px) {
+        .hostel-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .blocks-grid,
+        .rooms-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .page-heading h1 {
+            font-size: 26px;
+        }
+    }
+
+    @media (max-width: 500px) {
+        .hostel-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .field-row {
+            grid-template-columns: 1fr;
+        }
+
+        .header-actions {
+            width: 100%;
+        }
+
+        .header-actions .hn-btn {
+            flex: 1;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="hostel-page">
+
+    <div class="container">
+
+        <!-- =====================================================
+             PAGE HEADER
+        ====================================================== -->
+
+        <div class="hostel-header">
+
+            <div class="page-heading">
+                <h1>Hostel Management</h1>
+
+                <p>
+                    Manage hostel blocks, rooms, occupancy and student accommodation.
+                </p>
+            </div>
+
+            <div class="header-actions">
+
+                <button
+                    type="button"
+                    class="hn-btn hn-btn-secondary"
+                    onclick="refreshHostelData()"
+                >
+                    ↻ Refresh
+                </button>
+
+                <button
+                    type="button"
+                    class="hn-btn hn-btn-primary"
+                    onclick="openBlockModal()"
+                >
+                    ＋ Add Block
+                </button>
+
+                <button
+                    type="button"
+                    class="hn-btn hn-btn-primary"
+                    onclick="openRoomModal()"
+                >
+                    ＋ Add Room
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             STATISTICS
+        ====================================================== -->
+
+        <div class="hostel-stats">
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+                    <span class="stat-label">Hostel Blocks</span>
+                    <div class="stat-icon">🏢</div>
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="totalBlocks"
+                >
+                    {{ statistics.total_blocks or 0 }}
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+                    <span class="stat-label">Total Rooms</span>
+                    <div class="stat-icon">🚪</div>
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="totalRooms"
+                >
+                    {{ statistics.total_rooms or 0 }}
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+                    <span class="stat-label">Total Beds</span>
+                    <div class="stat-icon">🛏️</div>
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="totalCapacity"
+                >
+                    {{ statistics.total_capacity or 0 }}
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+                    <span class="stat-label">Occupied</span>
+                    <div class="stat-icon">👨‍🎓</div>
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="occupiedBeds"
+                >
+                    {{ statistics.occupied_beds or 0 }}
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+                    <span class="stat-label">Available Beds</span>
+                    <div class="stat-icon">✨</div>
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="availableBeds"
+                >
+                    {{ statistics.available_beds or 0 }}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             HOSTEL BLOCKS
+        ====================================================== -->
+
+        <div class="management-section">
+
+            <div class="section-header">
+
+                <div class="section-title-area">
+                    <h2>Hostel Blocks</h2>
+
+                    <p>
+                        Manage the hostel buildings available in HostelNexus.
+                    </p>
+                </div>
+
+                <div class="section-actions">
+
+                    <button
+                        type="button"
+                        class="hn-btn hn-btn-primary hn-btn-small"
+                        onclick="openBlockModal()"
+                    >
+                        ＋ Add Block
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="blocks-grid"
+                id="blocksGrid"
+            >
+
+                {% if blocks %}
+
+                    {% for block in blocks %}
+
+                    <div
+                        class="block-card"
+                        data-block-id="{{ block.id }}"
+                    >
+
+                        <div class="block-top">
+
+                            <div class="block-icon">
+                                🏢
+                            </div>
+
+                            <span class="status-badge
+                                {% if block.status == 'active' %}
+                                    status-active
+                                {% else %}
+                                    status-inactive
+                                {% endif %}
+                            ">
+                                {{ block.status }}
+                            </span>
+
+                        </div>
+
+
+                        <h3 class="block-name">
+                            {{ block.block_name }}
+                        </h3>
+
+
+                        <p class="block-description">
+                            {{ block.description or 'No description available for this hostel block.' }}
+                        </p>
+
+
+                        <div class="block-meta">
+
+                            <span class="room-count">
+                                🚪 {{ block.total_rooms or 0 }} Rooms
+                            </span>
+
+                            <div class="block-actions">
+
+                                <button
+                                    type="button"
+                                    class="icon-btn"
+                                    title="View Rooms"
+                                    onclick="filterRoomsByBlock({{ block.id }})"
+                                >
+                                    👁
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="icon-btn"
+                                    title="Edit Block"
+                                    onclick="editBlock({{ block.id }})"
+                                >
+                                    ✏️
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="icon-btn delete"
+                                    title="Delete Block"
+                                    onclick="deleteBlock({{ block.id }})"
+                                >
+                                    🗑
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+
+                        <div class="empty-icon">
+                            🏢
+                        </div>
+
+                        <h3>No Hostel Blocks Yet</h3>
+
+                        <p>
+                            Add your first hostel block to start managing rooms.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             ROOMS
+        ====================================================== -->
+
+        <div
+            class="management-section"
+            id="roomsSection"
+        >
+
+            <div class="section-header">
+
+                <div class="section-title-area">
+
+                    <h2>Rooms & Occupancy</h2>
+
+                    <p>
+                        Monitor room capacity and view students assigned to each room.
+                    </p>
+
+                </div>
+
+                <div class="section-actions">
+
+                    <button
+                        type="button"
+                        class="hn-btn hn-btn-primary hn-btn-small"
+                        onclick="openRoomModal()"
+                    >
+                        ＋ Add Room
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="room-toolbar">
+
+                <div class="room-filter">
+
+                    <select
+                        id="blockFilter"
+                        class="form-control-small"
+                        onchange="filterRooms()"
+                    >
+
+                        <option value="">
+                            All Hostel Blocks
+                        </option>
+
+                        {% for block in blocks %}
+
+                        <option value="{{ block.id }}">
+                            {{ block.block_name }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+
+                    <select
+                        id="statusFilter"
+                        class="form-control-small"
+                        onchange="filterRooms()"
+                    >
+
+                        <option value="">
+                            All Status
+                        </option>
+
+                        <option value="active">
+                            Active
+                        </option>
+
+                        <option value="inactive">
+                            Inactive
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div>
+                    <span
+                        id="roomResultCount"
+                        style="font-size:12px;color:#858598;"
+                    >
+                        {{ rooms|length }} rooms
+                    </span>
+                </div>
+
+            </div>
+
+
+            <div
+                class="rooms-grid"
+                id="roomsGrid"
+            >
+
+                {% if rooms %}
+
+                    {% for room in rooms %}
+
+                    {% set capacity = room.capacity|int %}
+                    {% set occupied = room.occupied_beds|int %}
+                    {% set available = room.available_beds|int %}
+
+                    {% if capacity > 0 %}
+                        {% set occupancy_percent = ((occupied / capacity) * 100)|round|int %}
+                    {% else %}
+                        {% set occupancy_percent = 0 %}
+                    {% endif %}
+
+                    <div
+                        class="room-card"
+                        data-room-id="{{ room.id }}"
+                        data-block-id="{{ room.block_id }}"
+                        data-status="{{ room.status }}"
+                    >
+
+                        <div class="room-header">
+
+                            <div>
+
+                                <h3 class="room-number">
+                                    Room {{ room.room_number }}
+                                </h3>
+
+                                <p class="room-block">
+                                    {{ room.block_name }}
+                                    · Floor {{ room.floor }}
+                                </p>
+
+                            </div>
+
+                            <span class="room-status
+                                {% if room.status == 'active' %}
+                                    status-active
+                                {% else %}
+                                    status-inactive
+                                {% endif %}
+                            ">
+                                {{ room.status }}
+                            </span>
+
+                        </div>
+
+
+                        <div class="room-capacity">
+
+                            <div class="capacity-label">
+
+                                <span>
+                                    Occupancy
+                                </span>
+
+                                <strong>
+                                    {{ occupied }}/{{ capacity }}
+                                </strong>
+
+                            </div>
+
+                            <div class="progress">
+
+                                <div
+                                    class="progress-bar"
+                                    style="width: {{ [occupancy_percent, 100]|min }}%;"
+                                ></div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="room-details">
+
+                            <div class="room-detail">
+
+                                <strong>
+                                    {{ capacity }}
+                                </strong>
+
+                                <span>
+                                    Capacity
+                                </span>
+
+                            </div>
+
+
+                            <div class="room-detail">
+
+                                <strong>
+                                    {{ occupied }}
+                                </strong>
+
+                                <span>
+                                    Occupied
+                                </span>
+
+                            </div>
+
+
+                            <div class="room-detail">
+
+                                <strong>
+                                    {{ available }}
+                                </strong>
+
+                                <span>
+                                    Available
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="room-actions">
+
+                            <button
+                                type="button"
+                                class="hn-btn hn-btn-secondary hn-btn-small"
+                                onclick="viewRoomStudents({{ room.id }})"
+                            >
+                                👥 Students
+                            </button>
+
+                            <button
+                                type="button"
+                                class="hn-btn hn-btn-secondary hn-btn-small"
+                                onclick="editRoom({{ room.id }})"
+                            >
+                                ✏️ Edit
+                            </button>
+
+                            <button
+                                type="button"
+                                class="hn-btn hn-btn-danger hn-btn-small"
+                                onclick="deleteRoom({{ room.id }})"
+                            >
+                                🗑
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+
+                        <div class="empty-icon">
+                            🚪
+                        </div>
+
+                        <h3>No Rooms Yet</h3>
+
+                        <p>
+                            Add a hostel block first, then create rooms inside it.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     ADD / EDIT BLOCK MODAL
+============================================================= -->
+
+<div
+    class="hn-modal"
+    id="blockModal"
+>
+
+    <div class="hn-modal-box">
+
+        <div class="hn-modal-header">
+
+            <h3 id="blockModalTitle">
+                Add Hostel Block
+            </h3>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeHostelModal('blockModal')"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="blockForm">
+
+            <div class="hn-modal-body">
+
+                <input
+                    type="hidden"
+                    id="blockId"
+                    name="block_id"
+                >
+
+
+                <div class="field-group">
+
+                    <label for="blockName">
+                        Block Name *
+                    </label>
+
+                    <input
+                        type="text"
+                        id="blockName"
+                        name="block_name"
+                        maxlength="100"
+                        placeholder="Example: Block A"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="field-group">
+
+                    <label for="blockDescription">
+                        Description
+                    </label>
+
+                    <textarea
+                        id="blockDescription"
+                        name="description"
+                        maxlength="500"
+                        placeholder="Enter a short description..."
+                    ></textarea>
+
+                </div>
+
+
+                <div
+                    class="field-group"
+                    id="blockStatusGroup"
+                    style="display:none;"
+                >
+
+                    <label for="blockStatus">
+                        Status
+                    </label>
+
+                    <select
+                        id="blockStatus"
+                        name="status"
+                    >
+
+                        <option value="active">
+                            Active
+                        </option>
+
+                        <option value="inactive">
+                            Inactive
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="hn-modal-footer">
+
+                <button
+                    type="button"
+                    class="hn-btn hn-btn-secondary"
+                    onclick="closeHostelModal('blockModal')"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="hn-btn hn-btn-primary"
+                    id="blockSubmitButton"
+                >
+                    Save Block
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     ADD / EDIT ROOM MODAL
+============================================================= -->
+
+<div
+    class="hn-modal"
+    id="roomModal"
+>
+
+    <div class="hn-modal-box">
+
+        <div class="hn-modal-header">
+
+            <h3 id="roomModalTitle">
+                Add Room
+            </h3>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeHostelModal('roomModal')"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="roomForm">
+
+            <div class="hn-modal-body">
+
+                <input
+                    type="hidden"
+                    id="roomId"
+                    name="room_id"
+                >
+
+
+                <div class="field-group">
+
+                    <label for="roomBlock">
+                        Hostel Block *
+                    </label>
+
+                    <select
+                        id="roomBlock"
+                        name="block_id"
+                        required
+                    >
+
+                        <option value="">
+                            Select Hostel Block
+                        </option>
+
+                        {% for block in blocks %}
+
+                        <option
+                            value="{{ block.id }}"
+                            {% if block.status != 'active' %}disabled{% endif %}
+                        >
+                            {{ block.block_name }}
+                            {% if block.status != 'active' %}
+                                (Inactive)
+                            {% endif %}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <div class="field-row">
+
+                    <div class="field-group">
+
+                        <label for="roomNumber">
+                            Room Number *
+                        </label>
+
+                        <input
+                            type="text"
+                            id="roomNumber"
+                            name="room_number"
+                            maxlength="30"
+                            placeholder="Example: A-101"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="field-group">
+
+                        <label for="roomFloor">
+                            Floor *
+                        </label>
+
+                        <input
+                            type="number"
+                            id="roomFloor"
+                            name="floor"
+                            min="0"
+                            max="100"
+                            placeholder="Example: 1"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="field-row">
+
+                    <div class="field-group">
+
+                        <label for="roomCapacity">
+                            Bed Capacity *
+                        </label>
+
+                        <input
+                            type="number"
+                            id="roomCapacity"
+                            name="capacity"
+                            min="1"
+                            max="20"
+                            placeholder="Example: 4"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div
+                        class="field-group"
+                        id="roomStatusGroup"
+                        style="display:none;"
+                    >
+
+                        <label for="roomStatus">
+                            Status
+                        </label>
+
+                        <select
+                            id="roomStatus"
+                            name="status"
+                        >
+
+                            <option value="active">
+                                Active
+                            </option>
+
+                            <option value="inactive">
+                                Inactive
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="hn-modal-footer">
+
+                <button
+                    type="button"
+                    class="hn-btn hn-btn-secondary"
+                    onclick="closeHostelModal('roomModal')"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="hn-btn hn-btn-primary"
+                    id="roomSubmitButton"
+                >
+                    Save Room
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     ROOM STUDENTS MODAL
+============================================================= -->
+
+<div
+    class="hn-modal"
+    id="studentsModal"
+>
+
+    <div class="hn-modal-box">
+
+        <div class="hn-modal-header">
+
+            <div>
+
+                <h3 id="studentsModalTitle">
+                    Room Students
+                </h3>
+
+                <div
+                    id="studentsModalSubtitle"
+                    style="font-size:11px;color:#858598;margin-top:3px;"
+                >
+                    Loading...
+                </div>
+
+            </div>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeHostelModal('studentsModal')"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="hn-modal-body">
+
+            <div
+                id="roomStudentsList"
+                class="room-students-list"
+            >
+
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        ⏳
+                    </div>
+
+                    <p>
+                        Loading students...
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    function profilePhotoUrl(photoPath) {
+
+        const path = String(photoPath || "")
+            .replace(/^\/+/, "");
+
+        return "/static/" + path
+            .split("/")
+            .map(encodeURIComponent)
+            .join("/");
+    }
+
+    /* =========================================================
+       GLOBAL DATA
+    ========================================================= */
+
+    const csrfToken = {{ csrf_token|tojson }};
+
+
+    /* =========================================================
+       HELPERS
+    ========================================================= */
+
+    function showHostelToast(message, type = "success") {
+
+        if (typeof showToast === "function") {
+            showToast(message, type);
+            return;
+        }
+
+        alert(message);
+    }
+
+
+    function escapeHtml(value) {
+
+        if (value === null || value === undefined) {
+            return "";
+        }
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
+    async function hostelFetch(url, options = {}) {
+
+        options.headers = options.headers || {};
+
+        options.headers["X-CSRF-Token"] = csrfToken;
+
+        if (
+            options.method &&
+            options.method.toUpperCase() !== "GET"
+        ) {
+
+            if (
+                options.body instanceof FormData &&
+                !options.body.has("csrf_token")
+            ) {
+                options.body.append(
+                    "csrf_token",
+                    csrfToken
+                );
+            }
+        }
+
+        const response = await fetch(
+            url,
+            options
+        );
+
+        let data;
+
+        try {
+            data = await response.json();
+        } catch (error) {
+
+            throw new Error(
+                "Unexpected server response."
+            );
+        }
+
+        if (!response.ok || !data.success) {
+
+            throw new Error(
+                data.message ||
+                "Something went wrong."
+            );
+        }
+
+        return data;
+    }
+
+
+    function closeHostelModal(id) {
+
+        const modal = document.getElementById(id);
+
+        if (modal) {
+            modal.classList.remove("active");
+        }
+    }
+
+
+    function openHostelModal(id) {
+
+        const modal = document.getElementById(id);
+
+        if (modal) {
+            modal.classList.add("active");
+        }
+    }
+
+
+    document.querySelectorAll(".hn-modal").forEach(
+        function(modal) {
+
+            modal.addEventListener(
+                "click",
+                function(event) {
+
+                    if (event.target === modal) {
+                        modal.classList.remove("active");
+                    }
+
+                }
+            );
+
+        }
+    );
+
+
+    document.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (event.key === "Escape") {
+
+                document.querySelectorAll(
+                    ".hn-modal.active"
+                ).forEach(
+                    function(modal) {
+                        modal.classList.remove("active");
+                    }
+                );
+
+            }
+
+        }
+    );
+
+
+    /* =========================================================
+       BLOCK MODAL
+    ========================================================= */
+
+    function openBlockModal() {
+
+        document.getElementById("blockForm").reset();
+
+        document.getElementById("blockId").value = "";
+
+        document.getElementById(
+            "blockModalTitle"
+        ).textContent = "Add Hostel Block";
+
+        document.getElementById(
+            "blockSubmitButton"
+        ).textContent = "Save Block";
+
+        document.getElementById(
+            "blockStatusGroup"
+        ).style.display = "none";
+
+        openHostelModal("blockModal");
+    }
+
+
+    async function editBlock(blockId) {
+
+        try {
+
+            const data = await hostelFetch(
+                `/admin/hostel/blocks/${blockId}`,
+                {
+                    method: "GET"
+                }
+            );
+
+            const block = data.block;
+
+            document.getElementById(
+                "blockId"
+            ).value = block.id;
+
+            document.getElementById(
+                "blockName"
+            ).value = block.block_name || "";
+
+            document.getElementById(
+                "blockDescription"
+            ).value = block.description || "";
+
+            document.getElementById(
+                "blockStatus"
+            ).value = block.status || "active";
+
+            document.getElementById(
+                "blockModalTitle"
+            ).textContent = "Edit Hostel Block";
+
+            document.getElementById(
+                "blockSubmitButton"
+            ).textContent = "Update Block";
+
+            document.getElementById(
+                "blockStatusGroup"
+            ).style.display = "block";
+
+            openHostelModal("blockModal");
+
+        } catch (error) {
+
+            showHostelToast(
+                error.message,
+                "error"
+            );
+
+        }
+
+    }
+
+
+    document.getElementById(
+        "blockForm"
+    ).addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+            const form = event.target;
+
+            const blockId = document.getElementById(
+                "blockId"
+            ).value;
+
+            const button = document.getElementById(
+                "blockSubmitButton"
+            );
+
+            const formData = new FormData(form);
+
+            const url = blockId
+                ? `/admin/hostel/blocks/${blockId}/update`
+                : "/admin/hostel/blocks/add";
+
+            const originalText = button.textContent;
+
+            button.disabled = true;
+            button.textContent = "Saving...";
+
+            try {
+
+                await hostelFetch(
+                    url,
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+                closeHostelModal(
+                    "blockModal"
+                );
+
+                showHostelToast(
+                    blockId
+                        ? "Hostel block updated successfully."
+                        : "Hostel block added successfully."
+                );
+
+                setTimeout(
+                    function() {
+                        window.location.reload();
+                    },
+                    500
+                );
+
+            } catch (error) {
+
+                showHostelToast(
+                    error.message,
+                    "error"
+                );
+
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+
+        }
+    );
+
+
+    async function deleteBlock(blockId) {
+
+        const confirmed = confirm(
+            "Are you sure you want to delete this hostel block?\n\nA block can only be deleted when it contains no rooms."
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+
+            await hostelFetch(
+                `/admin/hostel/blocks/${blockId}/delete`,
+                {
+                    method: "POST"
+                }
+            );
+
+            showHostelToast(
+                "Hostel block deleted successfully."
+            );
+
+            setTimeout(
+                function() {
+                    window.location.reload();
+                },
+                500
+            );
+
+        } catch (error) {
+
+            showHostelToast(
+                error.message,
+                "error"
+            );
+
+        }
+
+    }
+
+
+    /* =========================================================
+       ROOM MODAL
+    ========================================================= */
+
+    function openRoomModal(blockId = "") {
+
+        document.getElementById(
+            "roomForm"
+        ).reset();
+
+        document.getElementById(
+            "roomId"
+        ).value = "";
+
+        document.getElementById(
+            "roomModalTitle"
+        ).textContent = "Add Room";
+
+        document.getElementById(
+            "roomSubmitButton"
+        ).textContent = "Save Room";
+
+        document.getElementById(
+            "roomStatusGroup"
+        ).style.display = "none";
+
+        if (blockId) {
+
+            document.getElementById(
+                "roomBlock"
+            ).value = String(blockId);
+
+        }
+
+        openHostelModal("roomModal");
+    }
+
+
+    async function editRoom(roomId) {
+
+        try {
+
+            const data = await hostelFetch(
+                `/admin/hostel/rooms/${roomId}`,
+                {
+                    method: "GET"
+                }
+            );
+
+            const room = data.room;
+
+            document.getElementById(
+                "roomId"
+            ).value = room.id;
+
+            document.getElementById(
+                "roomBlock"
+            ).value = room.block_id;
+
+            document.getElementById(
+                "roomNumber"
+            ).value = room.room_number || "";
+
+            document.getElementById(
+                "roomFloor"
+            ).value = room.floor;
+
+            document.getElementById(
+                "roomCapacity"
+            ).value = room.capacity;
+
+            document.getElementById(
+                "roomStatus"
+            ).value = room.status || "active";
+
+            document.getElementById(
+                "roomModalTitle"
+            ).textContent = "Edit Room";
+
+            document.getElementById(
+                "roomSubmitButton"
+            ).textContent = "Update Room";
+
+            document.getElementById(
+                "roomStatusGroup"
+            ).style.display = "block";
+
+            openHostelModal("roomModal");
+
+        } catch (error) {
+
+            showHostelToast(
+                error.message,
+                "error"
+            );
+
+        }
+
+    }
+
+
+    document.getElementById(
+        "roomForm"
+    ).addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+            const form = event.target;
+
+            const roomId = document.getElementById(
+                "roomId"
+            ).value;
+
+            const button = document.getElementById(
+                "roomSubmitButton"
+            );
+
+            const formData = new FormData(form);
+
+            const url = roomId
+                ? `/admin/hostel/rooms/${roomId}/update`
+                : "/admin/hostel/rooms/add";
+
+            const originalText = button.textContent;
+
+            button.disabled = true;
+            button.textContent = "Saving...";
+
+            try {
+
+                await hostelFetch(
+                    url,
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+                closeHostelModal(
+                    "roomModal"
+                );
+
+                showHostelToast(
+                    roomId
+                        ? "Room updated successfully."
+                        : "Room added successfully."
+                );
+
+                setTimeout(
+                    function() {
+                        window.location.reload();
+                    },
+                    500
+                );
+
+            } catch (error) {
+
+                showHostelToast(
+                    error.message,
+                    "error"
+                );
+
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+
+        }
+    );
+
+
+    async function deleteRoom(roomId) {
+
+        const confirmed = confirm(
+            "Are you sure you want to delete this room?\n\nA room can only be deleted when it has no active student allocations."
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+
+            await hostelFetch(
+                `/admin/hostel/rooms/${roomId}/delete`,
+                {
+                    method: "POST"
+                }
+            );
+
+            showHostelToast(
+                "Room deleted successfully."
+            );
+
+            setTimeout(
+                function() {
+                    window.location.reload();
+                },
+                500
+            );
+
+        } catch (error) {
+
+            showHostelToast(
+                error.message,
+                "error"
+            );
+
+        }
+
+    }
+
+
+    /* =========================================================
+       ROOM FILTER
+    ========================================================= */
+
+    function filterRooms() {
+
+        const blockValue = document.getElementById(
+            "blockFilter"
+        ).value;
+
+        const statusValue = document.getElementById(
+            "statusFilter"
+        ).value;
+
+        const cards = document.querySelectorAll(
+            ".room-card"
+        );
+
+        let visibleCount = 0;
+
+        cards.forEach(
+            function(card) {
+
+                const cardBlock = card.dataset.blockId;
+                const cardStatus = card.dataset.status;
+
+                const blockMatches =
+                    !blockValue ||
+                    cardBlock === blockValue;
+
+                const statusMatches =
+                    !statusValue ||
+                    cardStatus === statusValue;
+
+                if (
+                    blockMatches &&
+                    statusMatches
+                ) {
+
+                    card.style.display = "";
+
+                    visibleCount++;
+
+                } else {
+
+                    card.style.display = "none";
+
+                }
+
+            }
+        );
+
+        document.getElementById(
+            "roomResultCount"
+        ).textContent =
+            `${visibleCount} room${visibleCount === 1 ? "" : "s"}`;
+    }
+
+
+    function filterRoomsByBlock(blockId) {
+
+        document.getElementById(
+            "blockFilter"
+        ).value = String(blockId);
+
+        document.getElementById(
+            "statusFilter"
+        ).value = "";
+
+        filterRooms();
+
+        document.getElementById(
+            "roomsSection"
+        ).scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+    }
+
+
+    /* =========================================================
+       ROOM STUDENTS
+    ========================================================= */
+
+    async function viewRoomStudents(roomId) {
+
+        openHostelModal(
+            "studentsModal"
+        );
+
+        const list = document.getElementById(
+            "roomStudentsList"
+        );
+
+        list.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">⏳</div>
+                <p>Loading students...</p>
+            </div>
+        `;
+
+        try {
+
+            const data = await hostelFetch(
+                `/admin/hostel/rooms/${roomId}/students`,
+                {
+                    method: "GET"
+                }
+            );
+
+            const room = data.room;
+            const students = data.students || [];
+
+            document.getElementById(
+                "studentsModalTitle"
+            ).textContent =
+                `Room ${room.room_number} Students`;
+
+            document.getElementById(
+                "studentsModalSubtitle"
+            ).textContent =
+                `${room.block_name} · Floor ${room.floor} · Capacity ${room.capacity}`;
+
+            if (!students.length) {
+
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🛏️</div>
+                        <h3>No Students Allocated</h3>
+                        <p>This room currently has no active student allocations.</p>
+                    </div>
+                `;
+
+                return;
+            }
+
+
+            list.innerHTML = students.map(
+                function(student) {
+
+                    const firstName =
+                        student.first_name || "";
+
+                    const lastName =
+                        student.last_name || "";
+
+                    const initials =
+                        (
+                            firstName.charAt(0) +
+                            lastName.charAt(0)
+                        ).toUpperCase();
+
+                    const fullName =
+                        `${firstName} ${lastName}`.trim();
+
+                    let avatar = `
+                        <span>${escapeHtml(initials)}</span>
+                    `;
+
+                    if (student.profile_photo) {
+
+                        avatar = `
+                            <img
+                                src="${profilePhotoUrl(student.profile_photo)}"
+                                alt="Profile"
+                            >
+                        `;
+
+                    }
+
+                    return `
+                        <div class="student-room-item">
+
+                            <div class="student-room-avatar">
+                                ${avatar}
+                            </div>
+
+                            <div class="student-room-info">
+
+                                <strong>
+                                    ${escapeHtml(fullName)}
+                                </strong>
+
+                                <span>
+                                    USN: ${escapeHtml(student.usn || "—")}
+                                    · Batch: ${escapeHtml(student.batch || "—")}
+                                </span>
+
+                            </div>
+
+                            <div class="bed-number">
+                                Bed ${escapeHtml(student.bed_number || "—")}
+                            </div>
+
+                        </div>
+                    `;
+
+                }
+            ).join("");
+
+        } catch (error) {
+
+            list.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">⚠️</div>
+                    <h3>Unable to Load Students</h3>
+                    <p>${escapeHtml(error.message)}</p>
+                </div>
+            `;
+
+        }
+
+    }
+
+
+    /* =========================================================
+       REFRESH
+    ========================================================= */
+
+    async function refreshHostelData() {
+
+        try {
+
+            const data = await hostelFetch(
+                "/admin/hostel/statistics",
+                {
+                    method: "GET"
+                }
+            );
+
+            const stats = data.statistics;
+
+            document.getElementById(
+                "totalBlocks"
+            ).textContent = stats.total_blocks;
+
+            document.getElementById(
+                "totalRooms"
+            ).textContent = stats.total_rooms;
+
+            document.getElementById(
+                "totalCapacity"
+            ).textContent = stats.total_capacity;
+
+            document.getElementById(
+                "occupiedBeds"
+            ).textContent = stats.occupied_beds;
+
+            document.getElementById(
+                "availableBeds"
+            ).textContent = stats.available_beds;
+
+            showHostelToast(
+                "Hostel statistics refreshed."
+            );
+
+        } catch (error) {
+
+            showHostelToast(
+                error.message,
+                "error"
+            );
+
+        }
+
+    }
+
+
+    /* =========================================================
+       INITIALIZATION
+    ========================================================= */
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function() {
+
+            filterRooms();
+
+            const requestedModal =
+                new URLSearchParams(window.location.search).get("open");
+
+            if (requestedModal === "block") {
+                openBlockModal();
+            } else if (requestedModal === "room") {
+                openRoomModal();
+            }
+
+        }
+    );
+
+</script>
+
+{% endblock %}

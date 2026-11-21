@@ -1,0 +1,22 @@
+# Secrets
+.env
+*.pem
+*.key
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+
+# Local database exports and logs
+*.sql
+*.log
+
+# User uploads (keep user data out of source control)
+static/uploads/*
+!static/uploads/.gitkeep
+
+# IDE
+.vscode/
+.idea/

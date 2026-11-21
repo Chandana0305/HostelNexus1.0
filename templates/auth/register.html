@@ -1,0 +1,1525 @@
+{% extends "base.html" %}
+
+{% block title %}Student Registration | HostelNexus{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+<style>
+    .register-page {
+        min-height: calc(100vh - 76px);
+        padding: 40px 20px 60px;
+        background:
+            radial-gradient(circle at 5% 5%, rgba(91, 75, 255, 0.07), transparent 28%),
+            radial-gradient(circle at 95% 90%, rgba(0, 191, 166, 0.07), transparent 28%),
+            #f7f8fc;
+    }
+
+    .register-container {
+        width: 100%;
+        max-width: 1050px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 26px;
+        overflow: hidden;
+        box-shadow:
+            0 25px 70px rgba(30, 35, 90, 0.10),
+            0 8px 25px rgba(30, 35, 90, 0.05);
+        animation: registerAppear 0.6s ease forwards;
+    }
+
+    @keyframes registerAppear {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .register-header {
+        position: relative;
+        padding: 38px 45px;
+        color: #ffffff;
+        overflow: hidden;
+        background:
+            radial-gradient(
+                circle at 90% 0%,
+                rgba(255, 255, 255, 0.16),
+                transparent 25%
+            ),
+            linear-gradient(
+                135deg,
+                #5b4bff,
+                #4537d5
+            );
+    }
+
+    .register-header::after {
+        content: "";
+        position: absolute;
+        width: 230px;
+        height: 230px;
+        right: -80px;
+        top: -150px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        box-shadow:
+            0 0 0 35px rgba(255, 255, 255, 0.03),
+            0 0 0 70px rgba(255, 255, 255, 0.02);
+    }
+
+    .register-header-top {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .register-logo {
+        width: 55px;
+        height: 55px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 16px;
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        font-size: 17px;
+        font-weight: 900;
+        backdrop-filter: blur(10px);
+    }
+
+    .register-header h1 {
+        margin: 0 0 4px;
+        font-size: 26px;
+        letter-spacing: -0.7px;
+    }
+
+    .register-header p {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 13px;
+    }
+
+    .register-header-badge {
+        position: relative;
+        z-index: 2;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin-top: 24px;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.11);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .register-body {
+        padding: 42px 45px 48px;
+    }
+
+    .register-intro {
+        margin-bottom: 30px;
+    }
+
+    .register-intro h2 {
+        margin: 0 0 7px;
+        color: #172033;
+        font-size: 22px;
+        letter-spacing: -0.5px;
+    }
+
+    .register-intro p {
+        margin: 0;
+        color: #7b8495;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .register-section {
+        margin-bottom: 32px;
+    }
+
+    .register-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #eceef3;
+    }
+
+    .register-section-number {
+        width: 29px;
+        height: 29px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 9px;
+        color: #ffffff;
+        background: #5b4bff;
+        font-size: 11px;
+        font-weight: 900;
+    }
+
+    .register-section-title h3 {
+        margin: 0;
+        color: #273248;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+    .register-section-title span {
+        margin-left: auto;
+        color: #9aa2b1;
+        font-size: 10px;
+    }
+
+    .register-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px 20px;
+    }
+
+    .register-grid.three-columns {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .register-field {
+        min-width: 0;
+    }
+
+    .register-field.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .register-field label {
+        display: block;
+        margin-bottom: 8px;
+        color: #273248;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .required-mark {
+        color: #dc4d5b;
+    }
+
+    .register-input {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .register-input > i {
+        position: absolute;
+        left: 14px;
+        z-index: 2;
+        color: #98a2b5;
+        font-size: 13px;
+        pointer-events: none;
+        transition: color 0.2s ease;
+    }
+
+    .register-input input,
+    .register-input select,
+    .register-input textarea {
+        width: 100%;
+        color: #20293b;
+        background: #f8f9fc;
+        border: 1px solid #e4e7ee;
+        border-radius: 11px;
+        outline: none;
+        font-family: inherit;
+        font-size: 12px;
+        transition:
+            border-color 0.25s ease,
+            box-shadow 0.25s ease,
+            background 0.25s ease;
+    }
+
+    .register-input input,
+    .register-input select {
+        height: 46px;
+        padding: 0 14px 0 41px;
+    }
+
+    .register-input textarea {
+        min-height: 95px;
+        padding: 13px 14px 13px 41px;
+        resize: vertical;
+    }
+
+    .register-input input::placeholder,
+    .register-input textarea::placeholder {
+        color: #a7afbd;
+    }
+
+    .register-input input:focus,
+    .register-input select:focus,
+    .register-input textarea:focus {
+        background: #ffffff;
+        border-color: #5b4bff;
+        box-shadow: 0 0 0 4px rgba(91, 75, 255, 0.08);
+    }
+
+    .register-input:focus-within > i {
+        color: #5b4bff;
+    }
+
+    .register-help {
+        display: block;
+        margin-top: 5px;
+        color: #9aa2b1;
+        font-size: 10px;
+        line-height: 1.5;
+    }
+
+    .register-photo-area {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        padding: 20px;
+        border: 1px dashed #d9dce6;
+        border-radius: 15px;
+        background: #fafbfe;
+    }
+
+    .photo-preview-container {
+        width: 86px;
+        height: 86px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+        border-radius: 18px;
+        background: #eeeff8;
+        border: 1px solid #e1e3eb;
+    }
+
+    #profilePhotoPreview {
+        width: 100%;
+        height: 100%;
+        display: none;
+        object-fit: cover;
+    }
+
+    .photo-placeholder {
+        color: #9da5b4;
+        font-size: 25px;
+    }
+
+    .photo-upload-content {
+        flex: 1;
+    }
+
+    .photo-upload-content strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #273248;
+        font-size: 12px;
+    }
+
+    .photo-upload-content p {
+        margin: 0 0 12px;
+        color: #8b94a5;
+        font-size: 10px;
+        line-height: 1.5;
+    }
+
+    .photo-upload-button {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 13px;
+        border-radius: 9px;
+        color: #5b4bff;
+        background: #f0efff;
+        border: 1px solid #dedbff;
+        font-size: 11px;
+        font-weight: 800;
+        cursor: pointer;
+        transition:
+            background 0.2s ease,
+            transform 0.2s ease;
+    }
+
+    .photo-upload-button:hover {
+        background: #e7e5ff;
+        transform: translateY(-1px);
+    }
+
+    .photo-upload-button input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .password-strength {
+        min-height: 15px;
+        margin-top: 5px;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .password-strength.weak {
+        color: #dc4d5b;
+    }
+
+    .password-strength.medium {
+        color: #d18a20;
+    }
+
+    .password-strength.strong {
+        color: #15977f;
+    }
+
+    .register-consent {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin: 4px 0 22px;
+        padding: 14px 16px;
+        border-radius: 12px;
+        background: #f8f9fc;
+        border: 1px solid #eceef3;
+    }
+
+    .register-consent input {
+        margin-top: 2px;
+        accent-color: #5b4bff;
+    }
+
+    .register-consent label {
+        color: #717b8d;
+        font-size: 11px;
+        line-height: 1.6;
+        cursor: pointer;
+    }
+
+    .register-consent strong {
+        color: #4d5668;
+    }
+
+    .register-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding-top: 5px;
+    }
+
+    .register-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: #7f8898;
+        font-size: 11px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .register-back:hover {
+        color: #5b4bff;
+    }
+
+    .register-submit {
+        position: relative;
+        min-width: 190px;
+        height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        border: 0;
+        border-radius: 11px;
+        color: #ffffff;
+        background: linear-gradient(135deg, #5b4bff, #4537d5);
+        box-shadow: 0 9px 24px rgba(91, 75, 255, 0.20);
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 800;
+        cursor: pointer;
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+    .register-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 13px 28px rgba(91, 75, 255, 0.27);
+    }
+
+    .register-submit .button-loader {
+        display: none;
+    }
+
+    .register-submit.loading .button-text,
+    .register-submit.loading .button-arrow {
+        display: none;
+    }
+
+    .register-submit.loading .button-loader {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .register-login-link {
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid #eceef3;
+        text-align: center;
+        color: #858e9f;
+        font-size: 11px;
+    }
+
+    .register-login-link a {
+        color: #5b4bff;
+        font-weight: 800;
+        text-decoration: none;
+    }
+
+    .register-login-link a:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 800px) {
+        .register-page {
+            padding: 25px 15px 40px;
+        }
+
+        .register-header {
+            padding: 30px;
+        }
+
+        .register-body {
+            padding: 32px 30px 38px;
+        }
+
+        .register-grid.three-columns {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 600px) {
+        .register-container {
+            border-radius: 20px;
+        }
+
+        .register-header {
+            padding: 25px 22px;
+        }
+
+        .register-body {
+            padding: 28px 20px 32px;
+        }
+
+        .register-header h1 {
+            font-size: 22px;
+        }
+
+        .register-grid,
+        .register-grid.three-columns {
+            grid-template-columns: 1fr;
+        }
+
+        .register-field.full-width {
+            grid-column: auto;
+        }
+
+        .register-photo-area {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .register-actions {
+            flex-direction: column-reverse;
+            align-items: stretch;
+        }
+
+        .register-submit {
+            width: 100%;
+        }
+
+        .register-back {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="register-page">
+
+    <div class="register-container">
+
+        <!-- HEADER -->
+        <div class="register-header">
+
+            <div class="register-header-top">
+
+                <div class="register-logo">
+                    HN
+                </div>
+
+                <div>
+                    <h1>Create Student Account</h1>
+
+                    <p>
+                        Register for HostelNexus at BIET Engineering College
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="register-header-badge">
+                <i class="fa-solid fa-graduation-cap"></i>
+                Information Science Department
+            </div>
+
+        </div>
+
+
+        <!-- BODY -->
+        <div class="register-body">
+
+            <div class="register-intro">
+
+                <h2>Student Registration</h2>
+
+                <p>
+                    Fill in your details carefully. Your account will be
+                    reviewed by the HostelNexus administrator before
+                    hostel services become available.
+                </p>
+
+            </div>
+
+
+            <!-- SERVER ERRORS -->
+            {% if errors %}
+
+            <div class="auth-alert auth-alert-error">
+
+                <i class="fa-solid fa-circle-exclamation"></i>
+
+                <div>
+                    {% for error in errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+            </div>
+
+            {% endif %}
+
+
+            <!-- REGISTRATION FORM -->
+            <form
+                id="registerForm"
+                class="auth-form"
+                method="POST"
+                action="{{ url_for('auth.register') }}"
+                enctype="multipart/form-data"
+                novalidate
+            >
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token }}"
+                >
+
+
+                <!-- PERSONAL INFORMATION -->
+                <div class="register-section">
+
+                    <div class="register-section-title">
+
+                        <div class="register-section-number">
+                            01
+                        </div>
+
+                        <h3>Personal Information</h3>
+
+                        <span>Required details</span>
+
+                    </div>
+
+
+                    <div class="register-grid">
+
+                        <!-- FIRST NAME -->
+                        <div class="register-field">
+
+                            <label for="first_name">
+                                First Name
+                                <span class="required-mark">*</span>
+                            </label>
+
+                            <div class="register-input">
+
+                                <i class="fa-solid fa-user"></i>
+
+                                <input
+                                    type="text"
+                                    id="first_name"
+                                    name="first_name"
+                                    placeholder="Enter first name"
+                                    maxlength="100"
+                                    value="{{ form_data.get('first_name', '') if form_data else '' }}"
+                                    required
+                                >
+
+                            </div>
+
+                            <small
+                                class="field-error"
+                                id="first_nameError"
+                            ></small>
+
+                        </div>
+
+
+                        <!-- LAST NAME -->
+                        <div class="register-field">
+
+                            <label for="last_name">
+                                Last Name
+                                <span class="required-mark">*</span>
+                            </label>
+
+                            <div class="register-input">
+
+                                <i class="fa-solid fa-user"></i>
+
+                                <input
+                                    type="text"
+                                    id="last_name"
+                                    name="last_name"
+                                    placeholder="Enter last name"
+                                    maxlength="100"
+                                    value="{{ form_data.get('last_name', '') if form_data else '' }}"
+                                    required
+                                >
+
+                            </div>
+
+                            <small
+                                class="field-error"
+                                id="last_nameError"
+                            ></small>
+
+                        </div>
+
+
+                        <!-- GENDER -->
+                        <div class="register-field">
+
+                            <label for="gender">
+                                Gender
+                            </label>
+
+                            <div class="register-input">
+
+                                <i class="fa-solid fa-venus-mars"></i>
+
+                                <select
+                                    id="gender"
+                                    name="gender"
+                                >
+                                    <option value="">
+                                        Select gender
+                                    </option>
+
+                                    <option value="Male">
+                                        Male
+                                    </option>
+
+                                    <option value="Female">
+                                        Female
+                                    </option>
+
+                                    <option value="Other">
+                                        Other
+                                    </option>
+                                </select>
+
+                            </div>
+
+                            <small
+                                class="field-error"
+                                id="genderError"
+                            ></small>
+
+                        </div>
+
+
+                        <!-- DATE OF BIRTH -->
+                        <div class="register-field">
+
+                            <label for="date_of_birth">
+                                Date of Birth
+                            </label>
+
+                            <div class="register-input">
+
+                                <i class="fa-solid fa-calendar"></i>
+
+                                <input
+                                    type="date"
+                                    id="date_of_birth"
+                                    name="date_of_birth"
+                                    value="{{ form_data.get('date_of_birth', '') if form_data else '' }}"
+                                >
+
+                            </div>
+
+                            <small
+                                class="field-error"
+                                id="date_of_birthError"
+                            ></small>
+
+                        </div>
+
+
+                        <!-- PHONE -->
+                        <div class="register-field">
+
+                            <label for="phone">
+                                Phone Number
+                                <span class="required-mark">*</span>
+                            </label>
+
+                            <div class="register-input">
+
+                                <i class="fa-solid fa-phone"></i>
+
+                                <input
+                                    type="tel"
+                                    id="phone"
+                                    name="phone"
+                                    placeholder="10-digit mobile number"
+                                    maxlength="10"
+                                    inputmode="numeric"
+                                    value="{{ form_data.get('phone', '') if form_data else '' }}"
+                                    required
+                                >
+
+                            </div>
+
+                            <small
+                                class="field-error"
+                                id="phoneError"
+                            ></small>
+
+                        </div>
+
+
+                        <!-- EMAIL -->
+                        <div class="register-field">
+
+                            <label for="email">
+                                Email Address
+                                <span class="required-mark">*</span>
+                            </label>
+
+                            <div class="register-input">
+
+                                <i class="fa-solid fa-envelope"></i>
+
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    placeholder="student@example.com"
+                                    maxlength="150"
+                                    value="{{ form_data.get('email', '') if form_data else '' }}"
+                                    required
+                                >
+
+                            </div>
+
+                            <small
+                                class="field-error"
+                                id="emailError"
+                            ></small>
+
+                        </div>
+
+
+                        <!-- ADDRESS -->
+                        <div class="register-field full-width">
+
+                            <label for="address">
+                                Address
+                            </label>
+
+                            <div class="register-input">
+
+                                <i class="fa-solid fa-location-dot"></i>
+
+                                <textarea
+                                    id="address"
+                                    name="address"
+                                    maxlength="500"
+                                    placeholder="Enter your permanent address"
+                                >{{ form_data.get('address', '') if form_data else '' }}</textarea>
+
+                            </div>
+
+                            <small
+                                class="register-help"
+                                data-character-counter="address"
+                            >
+                                0 / 500
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ACADEMIC INFORMATION -->
+                <div class="register-section">
+
+                    <div class="register-section-title">
+
+                        <div class="register-section-number">
+                            02
+                        </div>
+
+                        <h3>Academic Information</h3>
+
+                        <span>College details</span>
+
+                    </div>
+
+
+                    <div class="register-grid three-columns">
+
+                        <!-- STUDENT ID -->
+                        <div class="register-field">
+
+                            <label for="student_id">
+                                Student ID / USN
+                                <span class="required-mark">*</span>
+                            </label>
+
+                            <div class="register-input">
+
+                                <i class="fa-solid fa-id-card"></i>
+
+                                <input
+                                    type="text"
+                                    id="student_id"
+                                    name="student_id"
+                                    placeholder="Enter USN"
+                                    maxlength="50"
+                                    value="{{ form_data.get('student_id', '') if form_data else '' }}"
+                                    required
+                                >
+
+                            </div>
+
+                            <small
+                                class="field-error"
+                                id="student_idError"
+                            ></small>
+
+                        </div>
+
+
+                        <!-- COURSE -->
+                        <div class="register-field">
+
+                            <label for="course">
+                                Course
+                                <span class="required-mark">*</span>
+                            </label>
+
+                            <div class="register-input">
+
+                                <i class="fa-solid fa-book-open"></i>
+
+                                <select
+                                    id="course"
+                                    name="course"
+                                    required
+                                >
+                                    <option value="">
+                                        Select course
+                                    </option>
+
+                                    <option value="B.E">
+                                        B.E
+                                    </option>
+
+                                    <option value="B.Tech">
+                                        B.Tech
+                                    </option>
+
+                                    <option value="MCA">
+                                        MCA
+                                    </option>
+
+                                    <option value="M.Tech">
+                                        M.Tech
+                                    </option>
+
+                                    <option value="Other">
+                                        Other
+                                    </option>
+                                </select>
+
+                            </div>
+
+                            <small
+                                class="field-error"
+                                id="courseError"
+                            ></small>
+
+                        </div>
+
+
+                        <!-- DEPARTMENT -->
+                        <div class="register-field">
+
+                            <label for="department">
+                                Department
+                                <span class="required-mark">*</span>
+                            </label>
+
+                            <div class="register-input">
+
+                                <i class="fa-solid fa-building-columns"></i>
+
+                                <select
+                                    id="department"
+                                    name="department"
+                                    required
+                                >
+                                    <option value="">
+                                        Select department
+                                    </option>
+
+                                    <option value="Information Science">
+                                        Information Science
+                                    </option>
+
+                                    <option value="Computer Science">
+                                        Computer Science
+                                    </option>
+
+                                    <option value="Electronics and Communication">
+                                        Electronics & Communication
+                                    </option>
+
+                                    <option value="Mechanical">
+                                        Mechanical
+                                    </option>
+
+                                    <option value="Civil">
+                                        Civil
+                                    </option>
+
+                                    <option value="Electrical and Electronics">
+                                        Electrical & Electronics
+                                    </option>
+
+                                    <option value="Other">
+                                        Other
+                                    </option>
+                                </select>
+
+                            </div>
+
+                            <small
+                                class="field-error"
+                                id="departmentError"
+                            ></small>
+
+                        </div>
+
+
+                        <!-- BATCH -->
+                        <div class="register-field">
+
+                            <label for="batch">
+                                Batch
+                                <span class="required-mark">*</span>
+                            </label>
+
+                            <div class="register-input">
+
+                                <i class="fa-solid fa-users"></i>
+
+                                <input
+                                    type="text"
+                                    id="batch"
+                                    name="batch"
+                                    placeholder="Example: 2023-2027"
+                                    maxlength="30"
+                                    value="{{ form_data.get('batch', '') if form_data else '' }}"
+                                    required
+                                >
+
+                            </div>
+
+                            <small
+                                class="field-error"
+                                id="batchError"
+                            ></small>
+
+                        </div>
+
+
+                        <!-- YEAR -->
+                        <div class="register-field">
+
+                            <label for="year">
+                                Current Year
+                                <span class="required-mark">*</span>
+                            </label>
+
+                            <div class="register-input">
+
+                                <i class="fa-solid fa-layer-group"></i>
+
+                                <select
+                                    id="year"
+                                    name="year"
+                                    required
+                                >
+                                    <option value="">
+                                        Select year
+                                    </option>
+
+                                    <option value="1">
+                                        1st Year
+                                    </option>
+
+                                    <option value="2">
+                                        2nd Year
+                                    </option>
+
+                                    <option value="3">
+                                        3rd Year
+                                    </option>
+
+                                    <option value="4">
+                                        4th Year
+                                    </option>
+                                </select>
+
+                            </div>
+
+                            <small
+                                class="field-error"
+                                id="yearError"
+                            ></small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PARENT INFORMATION -->
+                <div class="register-section">
+
+                    <div class="register-section-title">
+
+                        <div class="register-section-number">
+                            03
+                        </div>
+
+                        <h3>Parent / Guardian Information</h3>
+
+                        <span>Optional</span>
+
+                    </div>
+
+
+                    <div class="register-grid">
+
+                        <div class="register-field">
+
+                            <label for="parent_name">
+                                Parent / Guardian Name
+                            </label>
+
+                            <div class="register-input">
+
+                                <i class="fa-solid fa-user-group"></i>
+
+                                <input
+                                    type="text"
+                                    id="parent_name"
+                                    name="parent_name"
+                                    placeholder="Enter parent name"
+                                    maxlength="150"
+                                    value="{{ form_data.get('parent_name', '') if form_data else '' }}"
+                                >
+
+                            </div>
+
+                            <small
+                                class="field-error"
+                                id="parent_nameError"
+                            ></small>
+
+                        </div>
+
+
+                        <div class="register-field">
+
+                            <label for="parent_phone">
+                                Parent / Guardian Phone
+                            </label>
+
+                            <div class="register-input">
+
+                                <i class="fa-solid fa-phone-volume"></i>
+
+                                <input
+                                    type="tel"
+                                    id="parent_phone"
+                                    name="parent_phone"
+                                    placeholder="10-digit mobile number"
+                                    maxlength="10"
+                                    inputmode="numeric"
+                                    value="{{ form_data.get('parent_phone', '') if form_data else '' }}"
+                                >
+
+                            </div>
+
+                            <small
+                                class="field-error"
+                                id="parent_phoneError"
+                            ></small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PROFILE PHOTO -->
+                <div class="register-section">
+
+                    <div class="register-section-title">
+
+                        <div class="register-section-number">
+                            04
+                        </div>
+
+                        <h3>Profile Photo</h3>
+
+                        <span>Optional</span>
+
+                    </div>
+
+
+                    <div class="register-photo-area">
+
+                        <div class="photo-preview-container">
+
+                            <img
+                                id="profilePhotoPreview"
+                                alt="Profile photo preview"
+                            >
+
+                            <i
+                                class="fa-solid fa-user photo-placeholder"
+                            ></i>
+
+                        </div>
+
+
+                        <div class="photo-upload-content">
+
+                            <strong>
+                                Upload your profile photo
+                            </strong>
+
+                            <p>
+                                JPG, PNG or WEBP format.
+                                Maximum file size is 5 MB.
+                            </p>
+
+                            <label class="photo-upload-button">
+
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+
+                                Choose Photo
+
+                                <input
+                                    type="file"
+                                    id="profile_photo"
+                                    name="profile_photo"
+                                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                                >
+
+                            </label>
+
+                            <small
+                                class="field-error"
+                                id="profile_photoError"
+                            ></small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- LOGIN CREDENTIALS -->
+                <div class="register-section">
+
+                    <div class="register-section-title">
+
+                        <div class="register-section-number">
+                            05
+                        </div>
+
+                        <h3>Login Credentials</h3>
+
+                        <span>Keep them secure</span>
+
+                    </div>
+
+
+                    <div class="register-grid">
+
+                        <!-- USERNAME -->
+                        <div class="register-field">
+
+                            <label for="username">
+                                Username
+                                <span class="required-mark">*</span>
+                            </label>
+
+                            <div class="register-input">
+
+                                <i class="fa-solid fa-at"></i>
+
+                                <input
+                                    type="text"
+                                    id="username"
+                                    name="username"
+                                    placeholder="Choose a username"
+                                    maxlength="50"
+                                    autocomplete="username"
+                                    value="{{ form_data.get('username', '') if form_data else '' }}"
+                                    required
+                                >
+
+                            </div>
+
+                            <small
+                                class="register-help"
+                            >
+                                Letters, numbers, underscore and dot are allowed.
+                            </small>
+
+                            <small
+                                class="field-error"
+                                id="usernameError"
+                            ></small>
+
+                        </div>
+
+
+                        <!-- PASSWORD -->
+                        <div class="register-field">
+
+                            <label for="password">
+                                Password
+                                <span class="required-mark">*</span>
+                            </label>
+
+                            <div class="register-input">
+
+                                <i class="fa-solid fa-lock"></i>
+
+                                <input
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    placeholder="Create a password"
+                                    maxlength="128"
+                                    autocomplete="new-password"
+                                    required
+                                >
+
+                                <button
+                                    type="button"
+                                    class="password-toggle"
+                                    onclick="togglePassword('password', this)"
+                                    aria-label="Show password"
+                                >
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+
+                            </div>
+
+                            <small
+                                id="passwordStrength"
+                                class="password-strength"
+                            ></small>
+
+                            <small
+                                class="field-error"
+                                id="passwordError"
+                            ></small>
+
+                        </div>
+
+
+                        <!-- CONFIRM PASSWORD -->
+                        <div class="register-field">
+
+                            <label for="confirm_password">
+                                Confirm Password
+                                <span class="required-mark">*</span>
+                            </label>
+
+                            <div class="register-input">
+
+                                <i class="fa-solid fa-lock"></i>
+
+                                <input
+                                    type="password"
+                                    id="confirm_password"
+                                    name="confirm_password"
+                                    placeholder="Re-enter your password"
+                                    maxlength="128"
+                                    autocomplete="new-password"
+                                    required
+                                >
+
+                                <button
+                                    type="button"
+                                    class="password-toggle"
+                                    onclick="togglePassword('confirm_password', this)"
+                                    aria-label="Show password"
+                                >
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+
+                            </div>
+
+                            <small
+                                class="field-error"
+                                id="confirm_passwordError"
+                            ></small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CONSENT -->
+                <div class="register-consent">
+
+                    <input
+                        type="checkbox"
+                        id="registrationConsent"
+                        name="registration_consent"
+                        value="1"
+                        required
+                    >
+
+                    <label for="registrationConsent">
+
+                        I confirm that the information provided above is
+                        <strong>accurate and belongs to me</strong>.
+                        I understand that my HostelNexus account may require
+                        administrator approval before hostel services are
+                        accessible.
+
+                    </label>
+
+                </div>
+
+
+                <!-- ACTIONS -->
+                <div class="register-actions">
+
+                    <a
+                        href="{{ url_for('auth.login_user') }}"
+                        class="register-back"
+                    >
+                        <i class="fa-solid fa-arrow-left"></i>
+                        Already have an account? Sign in
+                    </a>
+
+
+                    <button
+                        type="submit"
+                        id="registerButton"
+                        class="register-submit"
+                    >
+
+                        <span class="button-text">
+                            Create Student Account
+                        </span>
+
+                        <span class="button-loader">
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+                            Creating account...
+                        </span>
+
+                        <i class="fa-solid fa-arrow-right button-arrow"></i>
+
+                    </button>
+
+                </div>
+
+            </form>
+
+
+            <div class="register-login-link">
+
+                Your account will initially remain
+                <strong>Pending Approval</strong>
+                until reviewed by the administrator.
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

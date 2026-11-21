@@ -1,0 +1,1291 @@
+{% extends "base.html" %}
+
+{% block title %}Student Management | HostelNexus{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-page {
+        min-height: calc(100vh - 80px);
+        background: #f6f7fb;
+        padding: 32px 0 60px;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+        margin-bottom: 28px;
+    }
+
+    .page-title h1 {
+        margin: 0 0 8px;
+        font-size: 30px;
+        color: #1e1b4b;
+    }
+
+    .page-title p {
+        margin: 0;
+        color: #6b7280;
+        font-size: 15px;
+    }
+
+    .back-btn {
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 18px;
+        border-radius: 10px;
+        background: white;
+        color: #4b5563;
+        border: 1px solid #e5e7eb;
+        font-weight: 600;
+        transition: 0.25s ease;
+    }
+
+    .back-btn:hover {
+        transform: translateY(-2px);
+        border-color: #5b4bff;
+        color: #5b4bff;
+    }
+
+    /* Statistics */
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+        margin-bottom: 28px;
+    }
+
+    .stat-card {
+        background: white;
+        border: 1px solid #ececf3;
+        border-radius: 16px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        box-shadow: 0 5px 20px rgba(30, 27, 75, 0.04);
+        transition: 0.25s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 28px rgba(30, 27, 75, 0.08);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+    }
+
+    .stat-total .stat-icon {
+        background: #eef2ff;
+    }
+
+    .stat-pending .stat-icon {
+        background: #fff7ed;
+    }
+
+    .stat-approved .stat-icon {
+        background: #ecfdf5;
+    }
+
+    .stat-rejected .stat-icon {
+        background: #fef2f2;
+    }
+
+    .stat-info span {
+        display: block;
+        color: #6b7280;
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+
+    .stat-info strong {
+        font-size: 24px;
+        color: #111827;
+    }
+
+    /* Main panel */
+
+    .students-panel {
+        background: white;
+        border: 1px solid #ececf3;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 6px 25px rgba(30, 27, 75, 0.05);
+    }
+
+    .panel-header {
+        padding: 22px 24px;
+        border-bottom: 1px solid #eeeeF4;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 18px;
+        flex-wrap: wrap;
+    }
+
+    .panel-heading h2 {
+        margin: 0 0 5px;
+        font-size: 19px;
+        color: #1f2937;
+    }
+
+    .panel-heading p {
+        margin: 0;
+        color: #6b7280;
+        font-size: 13px;
+    }
+
+    /* Search */
+
+    .student-search {
+        display: flex;
+        gap: 8px;
+        min-width: 320px;
+    }
+
+    .student-search input {
+        width: 250px;
+        height: 42px;
+        padding: 0 14px;
+        border: 1px solid #dfe1ea;
+        border-radius: 10px;
+        outline: none;
+        font-size: 14px;
+        transition: 0.2s ease;
+    }
+
+    .student-search input:focus {
+        border-color: #5b4bff;
+        box-shadow: 0 0 0 3px rgba(91, 75, 255, 0.10);
+    }
+
+    .search-btn {
+        height: 42px;
+        padding: 0 16px;
+        border: none;
+        border-radius: 10px;
+        background: #5b4bff;
+        color: white;
+        cursor: pointer;
+        font-weight: 600;
+        transition: 0.2s ease;
+    }
+
+    .search-btn:hover {
+        background: #4537d5;
+        transform: translateY(-1px);
+    }
+
+    /* Filters */
+
+    .filter-bar {
+        padding: 16px 24px;
+        border-bottom: 1px solid #eeeeF4;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .filter-btn {
+        text-decoration: none;
+        padding: 9px 15px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #6b7280;
+        background: #f7f7fa;
+        transition: 0.2s ease;
+    }
+
+    .filter-btn:hover {
+        color: #5b4bff;
+        background: #eef2ff;
+    }
+
+    .filter-btn.active {
+        color: white;
+        background: #5b4bff;
+    }
+
+    /* Table */
+
+    .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .students-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+    }
+
+    .students-table th {
+        padding: 14px 20px;
+        text-align: left;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #6b7280;
+        background: #fafafa;
+        border-bottom: 1px solid #eeeeF4;
+        white-space: nowrap;
+    }
+
+    .students-table td {
+        padding: 15px 20px;
+        border-bottom: 1px solid #f0f0f4;
+        font-size: 14px;
+        color: #374151;
+        vertical-align: middle;
+    }
+
+    .students-table tbody tr {
+        transition: 0.18s ease;
+    }
+
+    .students-table tbody tr:hover {
+        background: #fafaff;
+    }
+
+    .student-profile {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .student-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: linear-gradient(
+            135deg,
+            #5b4bff,
+            #00bfa6
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .student-name {
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 3px;
+    }
+
+    .student-email {
+        color: #8a8f9f;
+        font-size: 12px;
+    }
+
+    .student-id {
+        font-weight: 700;
+        color: #5b4bff;
+    }
+
+    .department {
+        font-weight: 600;
+        color: #4b5563;
+    }
+
+    /* Status */
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .status-badge::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+    }
+
+    .status-pending {
+        background: #fff7ed;
+        color: #c2410c;
+    }
+
+    .status-pending::before {
+        background: #f97316;
+    }
+
+    .status-approved {
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .status-approved::before {
+        background: #10b981;
+    }
+
+    .status-rejected {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+    .status-rejected::before {
+        background: #ef4444;
+    }
+
+    /* Actions */
+
+    .action-group {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .action-btn {
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        min-width: 34px;
+        height: 34px;
+        padding: 0 10px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        transition: 0.2s ease;
+    }
+
+    .view-btn {
+        background: #eef2ff;
+        color: #4f46e5;
+    }
+
+    .view-btn:hover {
+        background: #e0e7ff;
+    }
+
+    .approve-btn {
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .approve-btn:hover {
+        background: #d1fae5;
+    }
+
+    .reject-btn {
+        background: #fef2f2;
+        color: #dc2626;
+    }
+
+    .reject-btn:hover {
+        background: #fee2e2;
+    }
+
+    /* Empty state */
+
+    .empty-state {
+        text-align: center;
+        padding: 65px 25px;
+    }
+
+    .empty-icon {
+        width: 70px;
+        height: 70px;
+        margin: 0 auto 15px;
+        border-radius: 18px;
+        background: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+    }
+
+    .empty-state h3 {
+        margin: 0 0 7px;
+        color: #374151;
+        font-size: 18px;
+    }
+
+    .empty-state p {
+        margin: 0;
+        color: #8a8f9f;
+        font-size: 14px;
+    }
+
+    /* Responsive */
+
+    @media (max-width: 1050px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 760px) {
+
+        .admin-page {
+            padding: 22px 0 40px;
+        }
+
+        .page-header {
+            flex-direction: column;
+        }
+
+        .student-search {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .student-search input {
+            width: 100%;
+        }
+
+        .panel-header {
+            align-items: stretch;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-bar {
+            overflow-x: auto;
+        }
+    }
+
+    @media (max-width: 480px) {
+
+        .page-title h1 {
+            font-size: 25px;
+        }
+
+        .student-search {
+            flex-direction: column;
+        }
+
+        .student-search input,
+        .search-btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="admin-page">
+
+    <div class="container">
+
+        <!-- Page Header -->
+
+        <div class="page-header">
+
+            <div class="page-title">
+                <h1>Student Management</h1>
+                <p>
+                    Review registrations, manage student accounts
+                    and control admission approval.
+                </p>
+            </div>
+
+            <a
+                href="{{ url_for('auth.admin_dashboard') }}"
+                class="back-btn"
+            >
+                ← Dashboard
+            </a>
+
+        </div>
+
+
+        <!-- Statistics -->
+
+        <div class="stats-grid">
+
+            <div class="stat-card stat-total">
+                <div class="stat-icon">
+                    👨‍🎓
+                </div>
+
+                <div class="stat-info">
+                    <span>Total Students</span>
+                    <strong>
+                        {{ statistics.total_students }}
+                    </strong>
+                </div>
+            </div>
+
+
+            <div class="stat-card stat-pending">
+                <div class="stat-icon">
+                    ⏳
+                </div>
+
+                <div class="stat-info">
+                    <span>Pending Approval</span>
+                    <strong>
+                        {{ statistics.pending_students }}
+                    </strong>
+                </div>
+            </div>
+
+
+            <div class="stat-card stat-approved">
+                <div class="stat-icon">
+                    ✓
+                </div>
+
+                <div class="stat-info">
+                    <span>Approved</span>
+                    <strong>
+                        {{ statistics.approved_students }}
+                    </strong>
+                </div>
+            </div>
+
+
+            <div class="stat-card stat-rejected">
+                <div class="stat-icon">
+                    ✕
+                </div>
+
+                <div class="stat-info">
+                    <span>Rejected</span>
+                    <strong>
+                        {{ statistics.rejected_students }}
+                    </strong>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- Students Panel -->
+
+        <div class="students-panel">
+
+            <div class="panel-header">
+
+                <div class="panel-heading">
+                    <h2>Registered Students</h2>
+
+                    <p>
+                        Search students using their
+                        Student ID / USN only.
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    class="search-btn"
+                    onclick="document.getElementById('addStudentDialog').showModal()"
+                >
+                    + Add Student
+                </button>
+
+
+                <!-- USN Search -->
+
+                <form
+                    class="student-search"
+                    id="studentSearchForm"
+                >
+
+                    <input
+                        type="text"
+                        id="studentIdSearch"
+                        name="student_id"
+                        placeholder="Enter Student ID / USN"
+                        autocomplete="off"
+                        maxlength="50"
+                    >
+
+                    <button
+                        type="submit"
+                        class="search-btn"
+                    >
+                        Search
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- Filters -->
+
+            <div class="filter-bar">
+
+                <a
+                    href="{{ url_for('admin_students.pending_students') }}"
+                    class="filter-btn {% if current_filter == 'pending' %}active{% endif %}"
+                >
+                    Pending
+                </a>
+
+                <a
+                    href="{{ url_for('admin_students.all_students') }}"
+                    class="filter-btn {% if current_filter == 'all' %}active{% endif %}"
+                >
+                    All Students
+                </a>
+
+            </div>
+
+
+            <!-- Search Result -->
+
+            <div id="searchResult"></div>
+
+
+            <!-- Students Table -->
+
+            {% if students is defined %}
+
+                {% if students %}
+
+                    <div class="table-wrapper">
+
+                        <table class="students-table">
+
+                            <thead>
+
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Student ID / USN</th>
+                                    <th>Department</th>
+                                    <th>Batch</th>
+                                    <th>Year</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                {% for student in students %}
+
+                                    <tr id="student-row-{{ student.id }}">
+
+                                        <td>
+
+                                            <div class="student-profile">
+
+                                                {% if student.profile_photo %}
+
+                                                    <img
+                                                        src="{{ url_for('static', filename=student.profile_photo) }}"
+                                                        class="student-avatar"
+                                                        alt="Student"
+                                                    >
+
+                                                {% else %}
+
+                                                    <div class="student-avatar">
+                                                        {{ student.first_name[0]|upper }}
+                                                    </div>
+
+                                                {% endif %}
+
+
+                                                <div>
+
+                                                    <div class="student-name">
+                                                        {{ student.first_name }}
+                                                        {{ student.last_name }}
+                                                    </div>
+
+                                                    <div class="student-email">
+                                                        {{ student.email }}
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </td>
+
+
+                                        <td>
+                                            <span class="student-id">
+                                                {{ student.student_id }}
+                                            </span>
+                                        </td>
+
+
+                                        <td>
+                                            <span class="department">
+                                                {{ student.department }}
+                                            </span>
+                                        </td>
+
+
+                                        <td>
+                                            {{ student.batch }}
+                                        </td>
+
+
+                                        <td>
+                                            {{ student.year }}
+                                        </td>
+
+
+                                        <td>
+
+                                            {% if student.registration_status == 'pending' %}
+
+                                                <span class="status-badge status-pending">
+                                                    Pending
+                                                </span>
+
+                                            {% elif student.registration_status == 'approved' %}
+
+                                                <span class="status-badge status-approved">
+                                                    Approved
+                                                </span>
+
+                                            {% else %}
+
+                                                <span class="status-badge status-rejected">
+                                                    Rejected
+                                                </span>
+
+                                            {% endif %}
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <div class="action-group">
+
+                                                <a
+                                                    href="{{ url_for('admin_students.view_student', student_id=student.id) }}"
+                                                    class="action-btn view-btn"
+                                                >
+                                                    View
+                                                </a>
+
+
+                                                {% if student.registration_status == 'pending' %}
+
+                                                    <button
+                                                        type="button"
+                                                        class="action-btn approve-btn"
+                                                        onclick="approveStudent({{ student.id }})"
+                                                    >
+                                                        Approve
+                                                    </button>
+
+                                                    <button
+                                                        type="button"
+                                                        class="action-btn reject-btn"
+                                                        onclick="rejectStudent({{ student.id }})"
+                                                    >
+                                                        Reject
+                                                    </button>
+
+                                                {% endif %}
+
+                                            </div>
+
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="empty-state">
+
+                        <div class="empty-icon">
+                            🎉
+                        </div>
+
+                        <h3>No Students Found</h3>
+
+                        <p>
+                            There are no students in this section.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            {% else %}
+
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+                        👨‍🎓
+                    </div>
+
+                    <h3>Student Management</h3>
+
+                    <p>
+                        Select Pending or All Students to load records.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+    /*
+     * Get CSRF token from the current session.
+     * The login/registration flow already uses session-based CSRF.
+     */
+
+    function getCSRFToken() {
+
+        const metaToken = document.querySelector(
+            'meta[name="csrf-token"]'
+        );
+
+        if (metaToken) {
+            return metaToken.getAttribute("content");
+        }
+
+        return "";
+    }
+
+
+    async function updateStudentStatus(
+        studentId,
+        action,
+        actionName
+    ) {
+
+        const confirmed = confirm(
+            `Are you sure you want to ${actionName} this student?`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        try {
+
+            const response = await fetch(
+                `/admin/students/${studentId}/${action}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "X-CSRFToken": getCSRFToken()
+                    },
+                    body: new URLSearchParams({
+                        csrf_token: getCSRFToken()
+                    })
+                }
+            );
+
+
+            const data = await response.json();
+
+
+            if (data.success) {
+
+                if (typeof showToast === "function") {
+
+                    showToast(
+                        data.message,
+                        "success"
+                    );
+
+                } else {
+
+                    alert(data.message);
+
+                }
+
+
+                setTimeout(
+                    function () {
+                        window.location.reload();
+                    },
+                    700
+                );
+
+            } else {
+
+                if (typeof showToast === "function") {
+
+                    showToast(
+                        data.message || "Unable to update student.",
+                        "error"
+                    );
+
+                } else {
+
+                    alert(
+                        data.message ||
+                        "Unable to update student."
+                    );
+
+                }
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Student status update error:",
+                error
+            );
+
+            if (typeof showToast === "function") {
+
+                showToast(
+                    "Something went wrong. Please try again.",
+                    "error"
+                );
+
+            } else {
+
+                alert(
+                    "Something went wrong. Please try again."
+                );
+
+            }
+
+        }
+
+    }
+
+
+    function approveStudent(studentId) {
+
+        updateStudentStatus(
+            studentId,
+            "approve",
+            "approve"
+        );
+
+    }
+
+
+    function rejectStudent(studentId) {
+
+        updateStudentStatus(
+            studentId,
+            "reject",
+            "reject"
+        );
+
+    }
+
+
+    /*
+     * Search by Student ID / USN only.
+     */
+
+    const searchForm = document.getElementById(
+        "studentSearchForm"
+    );
+
+
+    if (searchForm) {
+
+        searchForm.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+
+                const input = document.getElementById(
+                    "studentIdSearch"
+                );
+
+                const studentId = input.value.trim();
+
+
+                if (!studentId) {
+
+                    if (typeof showToast === "function") {
+
+                        showToast(
+                            "Please enter a Student ID / USN.",
+                            "error"
+                        );
+
+                    } else {
+
+                        alert(
+                            "Please enter a Student ID / USN."
+                        );
+
+                    }
+
+                    return;
+
+                }
+
+
+                try {
+
+                    const response = await fetch(
+                        `/admin/students/search?student_id=${encodeURIComponent(studentId)}`
+                    );
+
+
+                    const data = await response.json();
+
+
+                    const resultContainer =
+                        document.getElementById(
+                            "searchResult"
+                        );
+
+
+                    if (!data.success) {
+
+                        resultContainer.innerHTML = `
+                            <div style="
+                                margin: 18px 24px;
+                                padding: 14px 16px;
+                                border-radius: 10px;
+                                background: #fef2f2;
+                                color: #b91c1c;
+                                font-size: 14px;
+                                font-weight: 600;
+                            ">
+                                ${escapeHtml(
+                                    data.message ||
+                                    "Student not found."
+                                )}
+                            </div>
+                        `;
+
+                        return;
+
+                    }
+
+
+                    const student = data.student;
+
+
+                    const statusClass =
+                        student.registration_status === "approved"
+                            ? "status-approved"
+                            : student.registration_status === "rejected"
+                                ? "status-rejected"
+                                : "status-pending";
+
+
+                    resultContainer.innerHTML = `
+                        <div style="
+                            margin: 18px 24px;
+                            padding: 18px;
+                            border: 1px solid #e5e7eb;
+                            border-radius: 14px;
+                            background: #fafaff;
+                        ">
+
+                            <div style="
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                gap: 15px;
+                                flex-wrap: wrap;
+                            ">
+
+                                <div>
+
+                                    <div style="
+                                        font-weight: 700;
+                                        font-size: 17px;
+                                        color: #1f2937;
+                                        margin-bottom: 5px;
+                                    ">
+                                        ${escapeHtml(
+                                            student.first_name
+                                        )}
+                                        ${escapeHtml(
+                                            student.last_name || ""
+                                        )}
+                                    </div>
+
+                                    <div style="
+                                        color: #5b4bff;
+                                        font-weight: 700;
+                                        font-size: 13px;
+                                    ">
+                                        ${escapeHtml(
+                                            student.student_id
+                                        )}
+                                    </div>
+
+                                    <div style="
+                                        color: #6b7280;
+                                        font-size: 13px;
+                                        margin-top: 5px;
+                                    ">
+                                        ${escapeHtml(
+                                            student.department || ""
+                                        )}
+                                        ·
+                                        ${escapeHtml(
+                                            student.batch || ""
+                                        )}
+                                    </div>
+
+                                </div>
+
+
+                                <div>
+
+                                    <span class="status-badge ${statusClass}">
+                                        ${escapeHtml(
+                                            student.registration_status
+                                        )}
+                                    </span>
+
+                                    <a
+                                        href="/admin/students/view/${student.id}"
+                                        class="action-btn view-btn"
+                                        style="margin-left: 8px;"
+                                    >
+                                        View Details
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    `;
+
+                } catch (error) {
+
+                    console.error(
+                        "Student search error:",
+                        error
+                    );
+
+                    if (typeof showToast === "function") {
+
+                        showToast(
+                            "Unable to search student.",
+                            "error"
+                        );
+
+                    }
+
+                }
+
+            }
+        );
+
+    }
+
+
+    function escapeHtml(value) {
+
+        if (value === null || value === undefined) {
+            return "";
+        }
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+</script>
+
+<dialog id="addStudentDialog" style="border:0; border-radius:16px; padding:0; width:min(720px, calc(100% - 32px));">
+    <form id="addStudentForm" method="dialog" style="padding:24px;">
+        <h2 style="margin-top:0;">Add New Student</h2>
+        <p>Enter the student account and profile details.</p>
+        <input type="hidden" name="csrf_token" value="{{ session.get('csrf_token', '') }}">
+        <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px;">
+            <input required name="username" placeholder="Login username">
+            <input required type="password" name="password" placeholder="Initial password">
+            <input required type="password" name="confirm_password" placeholder="Confirm password">
+            <input required name="student_id" placeholder="Student ID / USN">
+            <input required name="first_name" placeholder="First name">
+            <input required name="last_name" placeholder="Last name">
+            <input required type="email" name="email" placeholder="Email">
+            <input required name="phone" placeholder="10-digit phone">
+            <input required name="course" placeholder="Course">
+            <input required name="department" placeholder="Department">
+            <input required name="batch" placeholder="Batch">
+            <input required name="year" placeholder="Year">
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:18px;">
+            <button type="button" class="filter-btn" onclick="document.getElementById('addStudentDialog').close()">Cancel</button>
+            <button type="submit" class="search-btn">Add Student</button>
+        </div>
+    </form>
+</dialog>
+
+<script>
+    document.getElementById("addStudentForm").addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const response = await fetch("{{ url_for('admin_students.add_student') }}", {
+            method: "POST",
+            body: new FormData(this)
+        });
+        const data = await response.json();
+
+        if (!data.success) {
+            alert(data.message || "Unable to add student.");
+            return;
+        }
+
+        alert(data.message);
+        window.location.reload();
+    });
+</script>
+
+{% endblock %}

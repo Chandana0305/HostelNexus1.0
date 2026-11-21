@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Payment Receipt | HostelNexus
+    </title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background: #f3f4f8;
+
+            color: #172033;
+
+            padding: 40px 20px;
+        }
+
+        .receipt-wrapper {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        .receipt {
+            background: #ffffff;
+
+            border-radius: 18px;
+
+            overflow: hidden;
+
+            box-shadow:
+                0 15px 50px rgba(
+                    25,
+                    35,
+                    70,
+                    0.12
+                );
+
+            border: 1px solid #e5e7ef;
+        }
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        .receipt-header {
+            padding: 32px 36px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #5b4bff,
+                    #4537d5
+                );
+
+            color: #ffffff;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 25px;
+        }
+
+        .brand {
+            display: flex;
+
+            align-items: center;
+
+            gap: 15px;
+        }
+
+        .brand-logo {
+            width: 58px;
+            height: 58px;
+
+            border-radius: 15px;
+
+            background: rgba(
+                255,
+                255,
+                255,
+                0.18
+            );
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 23px;
+
+            font-weight: 800;
+
+            border: 1px solid rgba(
+                255,
+                255,
+                255,
+                0.25
+            );
+        }
+
+        .brand-name {
+            font-size: 25px;
+
+            font-weight: 800;
+
+            letter-spacing: -0.5px;
+        }
+
+        .brand-subtitle {
+            margin-top: 5px;
+
+            font-size: 13px;
+
+            opacity: 0.85;
+        }
+
+        .receipt-title {
+            text-align: right;
+        }
+
+        .receipt-title h1 {
+            font-size: 25px;
+
+            margin-bottom: 7px;
+        }
+
+        .receipt-number {
+            font-size: 14px;
+
+            opacity: 0.9;
+        }
+
+        /* =====================================================
+           BODY
+        ===================================================== */
+
+        .receipt-body {
+            padding: 35px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 15px;
+
+            font-weight: 800;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.7px;
+
+            color: #5b4bff;
+
+            margin-bottom: 15px;
+
+            padding-bottom: 9px;
+
+            border-bottom: 1px solid #e9ebf2;
+        }
+
+        .student-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 14px;
+        }
+
+        .info-box {
+            background: #f8f9fc;
+
+            border: 1px solid #e8eaf1;
+
+            border-radius: 11px;
+
+            padding: 15px 16px;
+        }
+
+        .info-label {
+            font-size: 11px;
+
+            color: #7a8295;
+
+            margin-bottom: 6px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.4px;
+        }
+
+        .info-value {
+            font-size: 14px;
+
+            font-weight: 700;
+
+            color: #172033;
+
+            word-break: break-word;
+        }
+
+        /* =====================================================
+           PAYMENT SUMMARY
+        ===================================================== */
+
+        .amount-box {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #f4f2ff,
+                    #f8f7ff
+                );
+
+            border: 1px solid #e1ddff;
+
+            border-radius: 15px;
+
+            padding: 22px 24px;
+
+            margin-bottom: 18px;
+        }
+
+        .amount-label {
+            font-size: 13px;
+
+            color: #676f83;
+
+            margin-bottom: 7px;
+        }
+
+        .amount-value {
+            font-size: 29px;
+
+            font-weight: 800;
+
+            color: #5b4bff;
+        }
+
+        .paid-badge {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            background: #e8faf4;
+
+            color: #008f68;
+
+            padding: 8px 13px;
+
+            border-radius: 30px;
+
+            font-size: 12px;
+
+            font-weight: 700;
+        }
+
+        .paid-dot {
+            width: 7px;
+            height: 7px;
+
+            background: #00a879;
+
+            border-radius: 50%;
+        }
+
+        /* =====================================================
+           PAYMENT TABLE
+        ===================================================== */
+
+        .payment-table {
+            width: 100%;
+
+            border-collapse: collapse;
+
+            border: 1px solid #e7e9ef;
+
+            border-radius: 12px;
+
+            overflow: hidden;
+        }
+
+        .payment-table th {
+            text-align: left;
+
+            background: #f6f7fa;
+
+            padding: 13px 15px;
+
+            font-size: 11px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.4px;
+
+            color: #697185;
+
+            border-bottom:
+                1px solid #e4e6ed;
+        }
+
+        .payment-table td {
+            padding: 14px 15px;
+
+            font-size: 13px;
+
+            border-bottom:
+                1px solid #eceef3;
+        }
+
+        .payment-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .payment-table td:last-child {
+            font-weight: 700;
+        }
+
+        /* =====================================================
+           REMARKS
+        ===================================================== */
+
+        .remarks {
+            background: #fafbfc;
+
+            border: 1px solid #e7e9ef;
+
+            border-radius: 11px;
+
+            padding: 15px 16px;
+
+            color: #596276;
+
+            font-size: 13px;
+
+            line-height: 1.6;
+        }
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        .receipt-footer {
+            padding: 24px 35px;
+
+            border-top: 1px solid #e8eaf0;
+
+            background: #fafbfc;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            gap: 20px;
+
+            align-items: flex-end;
+        }
+
+        .footer-note {
+            font-size: 11px;
+
+            color: #7a8295;
+
+            line-height: 1.6;
+
+            max-width: 520px;
+        }
+
+        .authorized {
+            text-align: center;
+
+            min-width: 150px;
+        }
+
+        .signature-line {
+            width: 145px;
+
+            border-top: 1px solid #9da3b2;
+
+            margin: 0 auto 8px;
+        }
+
+        .authorized-text {
+            font-size: 11px;
+
+            color: #6f7789;
+        }
+
+        /* =====================================================
+           ACTIONS
+        ===================================================== */
+
+        .receipt-actions {
+            display: flex;
+
+            justify-content: center;
+
+            gap: 12px;
+
+            margin-top: 22px;
+        }
+
+        .action-btn {
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 12px 22px;
+
+            border-radius: 10px;
+
+            border: none;
+
+            text-decoration: none;
+
+            cursor: pointer;
+
+            font-size: 13px;
+
+            font-weight: 700;
+        }
+
+        .print-btn {
+            background: #5b4bff;
+
+            color: #ffffff;
+        }
+
+        .back-btn {
+            background: #ffffff;
+
+            color: #41495c;
+
+            border: 1px solid #dfe2ea;
+        }
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media (max-width: 700px) {
+
+            body {
+                padding: 15px;
+            }
+
+            .receipt-header {
+                flex-direction: column;
+
+                align-items: flex-start;
+            }
+
+            .receipt-title {
+                text-align: left;
+            }
+
+            .receipt-body {
+                padding: 22px;
+            }
+
+            .student-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .amount-box {
+                flex-direction: column;
+
+                align-items: flex-start;
+
+                gap: 15px;
+            }
+
+            .receipt-footer {
+                flex-direction: column;
+
+                align-items: flex-start;
+            }
+
+            .authorized {
+                text-align: left;
+            }
+
+            .signature-line {
+                margin-left: 0;
+            }
+
+        }
+
+        /* =====================================================
+           PRINT
+        ===================================================== */
+
+        @media print {
+
+            body {
+                background: #ffffff;
+
+                padding: 0;
+            }
+
+            .receipt-wrapper {
+                max-width: 100%;
+            }
+
+            .receipt {
+                box-shadow: none;
+
+                border: none;
+
+                border-radius: 0;
+            }
+
+            .receipt-actions {
+                display: none;
+            }
+
+            .receipt-header {
+                -webkit-print-color-adjust: exact;
+
+                print-color-adjust: exact;
+            }
+
+            .amount-box {
+                -webkit-print-color-adjust: exact;
+
+                print-color-adjust: exact;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="receipt-wrapper">
+
+    <div class="receipt">
+
+        <!-- =================================================
+             HEADER
+        ================================================== -->
+
+        <div class="receipt-header">
+
+            <div class="brand">
+
+                <div class="brand-logo">
+                    HN
+                </div>
+
+                <div>
+
+                    <div class="brand-name">
+                        HostelNexus
+                    </div>
+
+                    <div class="brand-subtitle">
+                        Hostel Management System
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="receipt-title">
+
+                <h1>
+                    PAYMENT RECEIPT
+                </h1>
+
+                <div class="receipt-number">
+                    {{ payment.receipt_number }}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             BODY
+        ================================================== -->
+
+        <div class="receipt-body">
+
+
+            <!-- STUDENT INFORMATION -->
+
+            <div class="section">
+
+                <div class="section-title">
+                    Student Information
+                </div>
+
+                <div class="student-grid">
+
+                    <div class="info-box">
+
+                        <div class="info-label">
+                            Student ID / USN
+                        </div>
+
+                        <div class="info-value">
+                            {{ payment.usn }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-box">
+
+                        <div class="info-label">
+                            Student Name
+                        </div>
+
+                        <div class="info-value">
+
+                            {{ payment.first_name }}
+
+                            {% if payment.last_name %}
+                                {{ payment.last_name }}
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-box">
+
+                        <div class="info-label">
+                            Batch
+                        </div>
+
+                        <div class="info-value">
+                            {{ payment.batch or '-' }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-box">
+
+                        <div class="info-label">
+                            Department
+                        </div>
+
+                        <div class="info-value">
+                            {{ payment.department or '-' }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- PAYMENT AMOUNT -->
+
+            <div class="section">
+
+                <div class="section-title">
+                    Payment Details
+                </div>
+
+                <div class="amount-box">
+
+                    <div>
+
+                        <div class="amount-label">
+                            Amount Paid
+                        </div>
+
+                        <div class="amount-value">
+                            ₹{{ "%.2f"|format(payment.amount|float) }}
+                        </div>
+
+                    </div>
+
+                    <div class="paid-badge">
+
+                        <span class="paid-dot"></span>
+
+                        Payment Received
+
+                    </div>
+
+                </div>
+
+
+                <table class="payment-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Particular
+                            </th>
+
+                            <th>
+                                Details
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+
+                            <td>
+                                Receipt Number
+                            </td>
+
+                            <td>
+                                {{ payment.receipt_number }}
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Academic Year
+                            </td>
+
+                            <td>
+                                {{ payment.academic_year or '-' }}
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Payment Method
+                            </td>
+
+                            <td>
+                                {{ payment.payment_method }}
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Transaction ID
+                            </td>
+
+                            <td>
+                                {{ payment.transaction_id or '-' }}
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Payment Date
+                            </td>
+
+                            <td>
+                                {{ payment.payment_date }}
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- FEE INFORMATION -->
+
+            <div class="section">
+
+                <div class="section-title">
+                    Fee Information
+                </div>
+
+                <div class="student-grid">
+
+                    <div class="info-box">
+
+                        <div class="info-label">
+                            Hostel Fee
+                        </div>
+
+                        <div class="info-value">
+                            ₹{{ "%.2f"|format((payment.hostel_fee or 0)|float) }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-box">
+
+                        <div class="info-label">
+                            Mess Fee
+                        </div>
+
+                        <div class="info-value">
+                            ₹{{ "%.2f"|format((payment.mess_fee or 0)|float) }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-box">
+
+                        <div class="info-label">
+                            Security Deposit
+                        </div>
+
+                        <div class="info-value">
+                            ₹{{ "%.2f"|format((payment.security_deposit or 0)|float) }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-box">
+
+                        <div class="info-label">
+                            Other Fee
+                        </div>
+
+                        <div class="info-value">
+                            ₹{{ "%.2f"|format((payment.other_fee or 0)|float) }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- REMARKS -->
+
+            {% if payment.remarks %}
+
+            <div class="section">
+
+                <div class="section-title">
+                    Remarks
+                </div>
+
+                <div class="remarks">
+                    {{ payment.remarks }}
+                </div>
+
+            </div>
+
+            {% endif %}
+
+
+        </div>
+
+
+        <!-- =================================================
+             FOOTER
+        ================================================== -->
+
+        <div class="receipt-footer">
+
+            <div class="footer-note">
+
+                <strong>
+                    HostelNexus
+                </strong><br>
+
+                This is a system-generated payment receipt.
+                Please retain this receipt for your records.
+
+                <br><br>
+
+                Receipt generated electronically.
+
+            </div>
+
+
+            <div class="authorized">
+
+                <div class="signature-line"></div>
+
+                <div class="authorized-text">
+                    Authorized Administrator
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         ACTION BUTTONS
+    ====================================================== -->
+
+    {% if not download_mode %}
+
+    <div class="receipt-actions">
+
+        <button
+            type="button"
+            class="action-btn print-btn"
+            onclick="window.print()"
+        >
+            🖨 Print Receipt
+        </button>
+
+
+        <a
+            href="{{ url_for('student_fees.fee_dashboard') }}"
+            class="action-btn back-btn"
+        >
+            ← Back to Fees
+        </a>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>
